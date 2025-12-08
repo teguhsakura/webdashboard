@@ -1,8 +1,7 @@
 // Service Worker untuk MPPT Monitoring PWA
 const CACHE_NAME = 'mppt-monitoring-v1.0';
 const urlsToCache = [
-  '/',
-  '/index.html',
+  '/dashboard.html',
   'https://unpkg.com/mqtt/dist/mqtt.min.js',
   'icons/icon-192x192.png',
   'icons/icon-512x512.png'
