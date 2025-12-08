@@ -1,10 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <meta http-equiv="refresh" content="0; url=dashboard.html">
-    <title>Redirecting to MPPT Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPPT Techfine Monitoring</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#007BFF">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    
+    <script>
+        // Redirect ke dashboard.html
+        window.location.href = './dashboard.html';
+        
+        // Fallback jika JavaScript disabled
+        setTimeout(function() {
+            document.body.innerHTML = '<p>Redirecting to <a href="./dashboard.html">MPPT Dashboard</a>...</p>';
+        }, 1000);
+    </script>
 </head>
 <body>
-    <p>Redirecting to <a href="dashboard.html">MPPT Dashboard</a>...</p>
+    <p>Loading MPPT Monitoring Dashboard...</p>
 </body>
 </html>
