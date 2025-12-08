@@ -1,15 +1,37 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="id">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="author" content="Teguh Sakura ( teguh.sakura@yahoo.com )">
-    <meta name="description" content="MPPT Techfine Monitoring">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#007BFF">
+    <meta name="description" content="MPPT Techfine Monitoring - Dashboard monitoring sistem MPPT real-time">
+    <meta name="author" content="Teguh Sakura (teguh.sakura@yahoo.com)">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="MPPT Monitoring">
+    <meta name="apple-mobile-web-app-title" content="MPPT Monitoring">
+    <meta name="msapplication-TileColor" content="#007BFF">
+    <meta name="msapplication-tap-highlight" content="no">
+    
     <title>MPPT Techfine Monitoring</title>
     
     <!-- Tambahkan library MQTT.js -->
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167x167.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="icons/icon-192x192.png">
     
 <style>
         :root {
@@ -31,13 +53,14 @@
             --button-padding: 8px 15px;
             --button-border-radius: 5px;
 
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -47,7 +70,72 @@
             padding: 10px;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center the main container */
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* PWA Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #007BFF;
+            color: white;
+            padding: 15px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 9999;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .install-prompt-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .install-icon {
+            font-size: 24px;
+        }
+
+        .install-text {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .install-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .install-btn {
+            background: white;
+            color: #007BFF;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .dismiss-btn {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
         }
 
         /* Modal/Popup Styles */
@@ -62,6 +150,7 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(5px);
         }
 
         .modal.active {
@@ -71,11 +160,17 @@
         .modal-content {
             background-color: white;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             width: 90%;
             max-width: 400px;
             text-align: center;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .modal h2 {
@@ -90,16 +185,16 @@
 
         .modal input {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             margin: 15px 0;
             border: 2px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
             text-align: center;
+            outline: none;
         }
 
         .modal input:focus {
-            outline: none;
             border-color: #007BFF;
         }
 
@@ -107,16 +202,17 @@
             background-color: #007BFF;
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 5px;
+            padding: 15px 30px;
+            border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
             width: 100%;
             transition: background-color 0.3s;
+            font-weight: bold;
         }
 
-        .modal button:hover {
+        .modal button:hover, .modal button:active {
             background-color: #0056b3;
         }
 
@@ -124,7 +220,7 @@
             background-color: #dc3545;
         }
 
-        .modal button.btn-danger:hover {
+        .modal button.btn-danger:hover, .modal button.btn-danger:active {
             background-color: #c82333;
         }
 
@@ -132,7 +228,7 @@
             background-color: #6c757d;
         }
 
-        .modal button.btn-secondary:hover {
+        .modal button.btn-secondary:hover, .modal button.btn-secondary:active {
             background-color: #5a6268;
         }
 
@@ -157,8 +253,8 @@
             justify-content: space-between;
             align-items: center;
             background-color: var(--card-bg-color);
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 12px 15px;
+            border-radius: 10px;
             margin-bottom: 15px;
             border: 2px solid var(--card-border-color);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
@@ -174,25 +270,21 @@
             background-color: #dc3545; /* Warna merah */
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 10px 15px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
             font-weight: bold;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
         }
 
-        .change-client-btn:hover {
+        .change-client-btn:hover, .change-client-btn:active {
             background-color: #c82333; /* Warna merah lebih gelap saat hover */
             transform: translateY(-2px);
             box-shadow: 0 3px 6px rgba(220, 53, 69, 0.2);
-        }
-
-        .change-client-btn:active {
-            transform: translateY(0);
         }
 
         .change-client-btn i {
@@ -233,13 +325,13 @@
         }
 
         /* Button Group */
-        button-group { margin: 10px; }
         .guardian-container {
             width: 100%;
-            max-width: 800px; /* Increased max-width for better desktop layout */
+            max-width: 800px;
             display: flex;
             flex-direction: column;
-            gap: 25px; /* Space between sections */
+            gap: 25px;
+            margin-bottom: 80px; /* Space for install prompt */
         }
 
         .button-group {
@@ -247,42 +339,33 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 15px;
-            /* Increased gap between buttons */
             margin-top: 15px;
         }
 
         .button-group button {
             background-color: #007BFF;
-            /* Default blue for most buttons */
             color: white;
-            padding: 12px 20px;
-            /* Larger buttons */
+            padding: 15px 20px;
             border: none;
             border-radius: var(--button-border-radius);
             cursor: pointer;
             font-size: 1rem;
-            /* Consistent font size */
             font-weight: bold;
             transition: background-color 0.3s ease, transform 0.2s ease;
             flex-basis: calc(33% - 10px);
-            /* Approx 3 buttons per row on larger screens */
             max-width: 180px;
-            /* Limit button width */
             min-width: 120px;
-            /* Ensure a minimum width */
         }
 
-        .button-group button:hover {
+        .button-group button:hover, .button-group button:active {
             background-color: #0056b3;
-            /* Darker blue on hover */
             transform: translateY(-2px);
-            /* Slight lift on hover */
         }
 
         .info-section {
             display: flex;
-            align-items: flex-start; /* Align icon with top of card */
-            gap: 20px; /* Space between icon and card */
+            align-items: flex-start;
+            gap: 20px;
         }
 
         .icon-container {
@@ -290,40 +373,38 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding-top: 10px; /* Align icon a bit with card title */
-            flex-basis: 80px; /* Fixed width for icon area */
+            padding-top: 10px;
+            flex-basis: 80px;
             flex-shrink: 0;
         }
 
         .icon-placeholder {
-            font-size: 3em; /* Placeholder icon size */
+            font-size: 3em;
             color: var(--icon-color);
             margin-bottom: 10px;
             line-height: 1;
         }
-        .icon-placeholder.solar-panel { color: #f9a825; } /* Sun-like color */
-        .icon-placeholder.moon-icon { color: #a0aec0; } /* Moon-like color */
-        .icon-placeholder.controller { color: #546e7a; } /* Neutral gray for controller */
-        .icon-placeholder.battery { color: #4caf50; } /* Green for battery */
-        .icon-placeholder.load { font-size: 2em; margin-top: 5px; color: #ffeb3b; } /* Lightbulb */
-
+        .icon-placeholder.solar-panel { color: #f9a825; }
+        .icon-placeholder.moon-icon { color: #a0aec0; }
+        .icon-placeholder.controller { color: #546e7a; }
+        .icon-placeholder.battery { color: #4caf50; }
+        .icon-placeholder.load { font-size: 2em; margin-top: 5px; color: #ffeb3b; }
 
         .arrow {
             font-size: 1.5em;
             color: var(--arrow-color);
             line-height: 1;
-            display: none; /* Initially hide all arrows */
+            display: none;
         }
         .arrow.down::before { content: '⬇'; }
-        .arrow.right::before { content: '➡'; margin-left: 50px; /* For controller to load arrow */ }
-
+        .arrow.right::before { content: '➡'; margin-left: 50px; }
 
         .info-card {
             flex-grow: 1;
             background-color: var(--card-bg-color);
             border: 2px solid var(--card-border-color);
             border-radius: 15px;
-            padding: 5px 10px;
+            padding: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
@@ -331,22 +412,20 @@
             font-size: 1.1em;
             font-weight: bold;
             color: var(--text-color-primary);
-            margin-bottom: 10px; /* Reduced margin for tabs */
-            border-bottom: none; /* Removed border */
-            padding-bottom: 0; /* Removed padding */
+            margin-bottom: 15px;
             display: flex;
-            justify-content: space-between; /* For potential extra elements */
+            justify-content: space-between;
             align-items: center;
         }
 
         .tab-container {
-            display: none; /* Initially hide tabs on desktop */
+            display: none;
             border-bottom: 1px solid #eee;
             margin-bottom: 10px;
         }
 
         .tab {
-            padding: 8px 15px;
+            padding: 10px 15px;
             cursor: pointer;
             background-color: var(--tab-bg-color);
             color: var(--tab-text-color);
@@ -378,7 +457,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 12px 0;
             font-size: 0.95em;
         }
         .metric:not(:last-child) {
@@ -403,23 +482,23 @@
         .no-sensor {
             color: #dc3545;
             font-style: italic;
-            font-weight: normal; /* Override bold for metric-value */
+            font-weight: normal;
         }
 
         .charging {
-            color: #4CAF50; /* Green for charging */
+            color: #4CAF50;
         }
 
         .not-charging {
-            color: #f44336; /* Red for not charging */
+            color: #f44336;
         }
 
         .battery-full-status {
-            color: #4CAF50; /* Green for full battery */
+            color: #4CAF50;
         }
 
         .battery-not-full-status {
-            color: #ff9800; /* Orange for not full */
+            color: #ff9800;
         }
 
         /* Style for the bottom information */
@@ -429,12 +508,12 @@
             background-color: var(--card-bg-color);
             border: 2px solid var(--card-border-color);
             border-radius: 10px;
-            padding: 15px 20px;
+            padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
         .section-info a {
-            text-decoration: none; /* Remove underlines from links */
+            text-decoration: none;
             font-weight: bold;
         }
 
@@ -459,6 +538,7 @@
             z-index: 1001;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(5px);
         }
 
         .confirmation-modal.active {
@@ -468,11 +548,12 @@
         .confirmation-content {
             background-color: white;
             padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             width: 90%;
             max-width: 350px;
             text-align: center;
+            animation: modalFadeIn 0.3s ease;
         }
 
         .confirmation-icon {
@@ -481,53 +562,46 @@
             margin-bottom: 15px;
         }
 
-        /* Media query for wider screens (e.g., tablets and desktops) */
+        /* Media query for wider screens */
         @media (min-width: 600px) {
             .info-card {
                 display: grid;
-                column-gap: 20px; /* Add space between grid columns */
+                column-gap: 20px;
             }
             .info-card.pv-info {
-                grid-template-columns: repeat(2, 1fr); /* 2 columns */
-                grid-template-rows: repeat(auto, auto); /* Adjust rows automatically */
+                grid-template-columns: repeat(2, 1fr);
             }
             .info-card.pv-info .card-title {
-                grid-column: 1 / -1; /* Title spans both columns */
+                grid-column: 1 / -1;
                 margin-bottom: 15px;
             }
 
             .info-card.battery-info {
-                grid-template-columns: repeat(2, 1fr); /* 2 columns */
-                grid-template-rows: repeat(auto, auto); /* Adjust rows automatically */
+                grid-template-columns: repeat(2, 1fr);
             }
             .info-card.battery-info .card-title {
-                grid-column: 1 / -1; /* Title spans both columns */
+                grid-column: 1 / -1;
                 margin-bottom: 15px;
             }
             .info-card.battery-info > #battery-main,
             .info-card.battery-info > #battery-energy {
-                display: contents; /* Allow child elements to participate in the grid */
+                display: contents;
             }
 
             .info-card.load-info {
-                grid-template-columns: repeat(2, 1fr); /* 2 columns */
-                grid-template-rows: repeat(auto, auto); /* Adjust rows automatically */
+                grid-template-columns: repeat(2, 1fr);
             }
             .info-card.load-info .card-title {
-                grid-column: 1 / -1; /* Title spans both columns */
+                grid-column: 1 / -1;
                 margin-bottom: 15px;
             }
             .info-card.load-info > #load-main,
             .info-card.load-info > #load-energy {
-                display: contents; /* Allow child elements to participate in the grid */
+                display: contents;
             }
-            .info-card.load-info > #load-main > .load-control-container {
-                grid-column: 1 / -1; /* Span both columns */
-            }
-
         }
 
-        /* Mobile-specific styles (adjust breakpoint as needed) */
+        /* Mobile-specific styles */
         @media (max-width: 599px) {
             body {
                 padding: 10px;
@@ -550,18 +624,17 @@
             .arrow.right::before { margin-left: 10px; }
 
             .info-card {
-                flex-direction: column; /* Ensure stacking on mobile */
                 width: 100%;
             }
             .card-title {
-                width: 100%; /* Ensure title takes full width */
+                width: 100%;
             }
             .icon-placeholder {
                 font-size: 2.5em;
             }
 
             .tab-container {
-                display: flex; /* Show tabs on mobile */
+                display: flex;
                 justify-content: space-around;
             }
             .tab {
@@ -574,12 +647,12 @@
             }
 
             .tab-content-wrapper {
-                flex-direction: column; /* Stack content on mobile */
+                flex-direction: column;
             }
 
             .tab-content {
-                flex: 1 0 100%; /* Take full width */
-                display: none !important; /* Hide initially, controlled by tabs */
+                flex: 1 0 100%;
+                display: none !important;
             }
 
             .tab-content.active {
@@ -587,9 +660,38 @@
             }
         }
 
+        /* PWA Standalone Mode */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            
+            .install-prompt {
+                display: none !important;
+            }
+        }
+
     </style>
 </head>
 <body>
+    <!-- PWA Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        <div class="install-prompt-content">
+            <div class="install-icon">📱</div>
+            <div class="install-text">
+                <strong>Install MPPT Monitoring</strong><br>
+                Untuk pengalaman yang lebih baik, install aplikasi ini di perangkat Anda.
+            </div>
+        </div>
+        <div class="install-actions">
+            <button class="dismiss-btn" onclick="dismissInstallPrompt()">Nanti</button>
+            <button class="install-btn" onclick="installApp()">Install</button>
+        </div>
+    </div>
+
     <!-- Modal/Popup untuk input nama klien -->
     <div class="modal active" id="clientModal">
         <div class="modal-content">
@@ -614,7 +716,7 @@
         </div>
     </div>
 
-    <!-- Main Content (akan ditampilkan setelah input klien) -->
+    <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <div class="guardian-container">
             <section class="section-info">
@@ -738,11 +840,75 @@
                     <span>✏️</span> <b>Ganti Nama Klien</b>
                 </button>
             </div>
-
         </div>
     </div>
 
 <script>
+// ===== PWA INSTALL FUNCTIONALITY =====
+let deferredPrompt;
+const installPrompt = document.getElementById('installPrompt');
+
+// Event listener for beforeinstallprompt
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    
+    // Show install prompt after 5 seconds
+    setTimeout(() => {
+        if (!isAppInstalled()) {
+            showInstallPrompt();
+        }
+    }, 5000);
+});
+
+// Check if app is already installed
+function isAppInstalled() {
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true;
+}
+
+// Show install prompt
+function showInstallPrompt() {
+    installPrompt.style.display = 'flex';
+}
+
+// Dismiss install prompt
+function dismissInstallPrompt() {
+    installPrompt.style.display = 'none';
+    // Store dismissal in localStorage
+    localStorage.setItem('installPromptDismissed', 'true');
+}
+
+// Install app
+function installApp() {
+    if (deferredPrompt) {
+        // Show the install prompt
+        deferredPrompt.prompt();
+        
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            } else {
+                console.log('User dismissed the install prompt');
+            }
+            // Reset deferredPrompt variable
+            deferredPrompt = null;
+            // Hide prompt
+            installPrompt.style.display = 'none';
+        });
+    }
+}
+
+// Check if app was launched from home screen
+window.addEventListener('appinstalled', (evt) => {
+    console.log('MPPT Monitoring was installed successfully');
+    // Hide prompt if shown
+    installPrompt.style.display = 'none';
+});
+
 // ===== KONFIGURASI GLOBAL =====
 const MQTT_CONFIG = {
     url: 'wss://broker.emqx.io:8084/mqtt',
@@ -762,6 +928,19 @@ let mqttClient = null;
 let isConnected = false;
 let currentClientName = '';
 let currentTopic = '';
+
+// ===== SERVICE WORKER REGISTRATION =====
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js')
+            .then(function(registration) {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('ServiceWorker registration failed: ', error);
+            });
+    });
+}
 
 // ===== FUNGSI MODAL & KONFIRMASI =====
 function startMonitoring() {
@@ -1173,6 +1352,11 @@ document.addEventListener('DOMContentLoaded', function() {
             hideConfirmation();
         }
     });
+    
+    // Prevent pull-to-refresh on mobile
+    document.body.addEventListener('touchmove', function(e) {
+        if (e.scale !== 1) { e.preventDefault(); }
+    }, { passive: false });
 });
 
 // ===== FUNGSI UNTUK DEBUG =====
