@@ -34,6 +34,136 @@
     <link rel="icon" type="image/png" href="./icons/icon-192x192.png">
     
 <style>
+        /* ===== FIX SCROLLING ISSUES ===== */
+        
+        /* Reset untuk scrolling */
+        * {
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            -webkit-touch-callout: none;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch !important; /* iOS smooth scroll */
+            overscroll-behavior-y: contain; /* Better scroll control */
+            touch-action: pan-y; /* Allow vertical scrolling */
+            position: relative;
+        }
+        
+        body {
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            min-height: 100vh;
+        }
+        
+        /* Fix untuk iOS Safari */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                position: fixed;
+                width: 100%;
+                height: 100%;
+                overflow-y: scroll;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        .guardian-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            touch-action: pan-y; /* Critical for scrolling */
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Fix untuk semua elemen yang bisa discroll */
+        .info-card, 
+        .section-info, 
+        .client-info,
+        .modal-content,
+        .confirmation-content,
+        .tab-content {
+            touch-action: pan-y;
+            user-select: none; /* Prevent text selection on touch */
+            -webkit-user-select: none;
+        }
+        
+        /* Modal fix */
+        .modal {
+            position: fixed;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            touch-action: pan-y;
+        }
+        
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+        }
+        
+        /* Fix untuk text input di mobile */
+        input, textarea, button, select {
+            font-size: 16px !important; /* Prevent iOS zoom */
+            touch-action: manipulation; /* Faster tap response */
+        }
+        
+        /* Better button tap feedback */
+        button {
+            transition: transform 0.1s ease;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Fix untuk metric items */
+        .metric {
+            min-height: 44px; /* Minimum touch target size */
+            padding: 12px 0;
+            align-items: center;
+        }
+        
+        /* Fix tab untuk mobile */
+        .tab {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+        
+        /* Remove any fixed heights that might block scrolling */
+        .main-content {
+            min-height: 100vh;
+            overflow-y: visible !important;
+        }
+        
+        /* Safari specific fixes */
+        _::-webkit-full-page-media, _:future, :root body {
+            position: absolute;
+        }
+        
+        /* Chrome mobile fix */
+        @media screen and (max-width: 768px) {
+            body {
+                position: relative;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Allow momentum scrolling */
+            .guardian-container {
+                overflow-y: visible;
+            }
+        }
+
         :root {
             --body-bg-color: #f0f4f8; /* Light grayish blue background */
             --card-bg-color: #ffffff;
@@ -1353,10 +1483,97 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Prevent pull-to-refresh on mobile
-    document.body.addEventListener('touchmove', function(e) {
-        if (e.scale !== 1) { e.preventDefault(); }
-    }, { passive: false });
+    // ===== FIX TOUCH SCROLLING JAVASCRIPT =====
+    
+    // REMOVE OR COMMENT THIS BLOCKING CODE:
+    // document.body.addEventListener('touchmove', function(e) {
+    //     if (e.scale !== 1) { e.preventDefault(); }
+    // }, { passive: false });
+    
+    // ADD THIS INSTEAD:
+    
+    // Fix untuk iOS Safari scrolling
+    document.addEventListener('DOMContentLoaded', function() {
+        // Enable scrolling on all elements
+        document.body.style.overflow = 'auto';
+        document.body.style.webkitOverflowScrolling = 'touch';
+        
+        // Fix untuk modal scrolling
+        const modals = document.querySelectorAll('.modal, .confirmation-modal');
+        modals.forEach(modal => {
+            modal.style.overflowY = 'auto';
+            modal.style.webkitOverflowScrolling = 'touch';
+        });
+        
+        // Better touch handling untuk buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('touchstart', function(e) {
+                // Add active state
+                this.style.opacity = '0.8';
+            }, { passive: true });
+            
+            button.addEventListener('touchend', function() {
+                this.style.opacity = '1';
+            }, { passive: true });
+        });
+        
+        // Fix untuk input focus di iOS
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                // Scroll ke input yang sedang difokuskan
+                setTimeout(() => {
+                    this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            });
+        });
+    });
+    
+    // Better scroll handling
+    let isScrolling = false;
+    let scrollTimeout;
+    
+    window.addEventListener('scroll', function() {
+        isScrolling = true;
+        
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(function() {
+            isScrolling = false;
+        }, 66); // 60fps
+    }, { passive: true });
+    
+    // Touch event untuk better scrolling
+    let startY;
+    
+    document.addEventListener('touchstart', function(e) {
+        startY = e.touches[0].clientY;
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', function(e) {
+        if (!isScrolling) {
+            const currentY = e.touches[0].clientY;
+            const diff = startY - currentY;
+            
+            // Jika perbedaan cukup besar, anggap ini scroll
+            if (Math.abs(diff) > 10) {
+                isScrolling = true;
+            }
+        }
+    }, { passive: true });
+    
+    // Fix untuk PWA standalone mode
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        // Additional fixes untuk installed PWA
+        document.body.style.height = '100vh';
+        document.body.style.overflowY = 'auto';
+        
+        // Force reflow untuk fix rendering
+        setTimeout(() => {
+            document.body.style.display = 'none';
+            document.body.offsetHeight; // Trigger reflow
+            document.body.style.display = 'block';
+        }, 100);
+    }
+    
 });
 
 // ===== FUNGSI UNTUK DEBUG =====
