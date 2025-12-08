@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#007BFF">
-    <meta name="description" content="MPPT Techfine Monitoring - Dashboard monitoring sistem MPPT real-time">
+    <meta name="description" content="Dashboard MPPT Monitoring real-time for Techfine, Samoto and Amsan">
     <meta name="author" content="Teguh Sakura (teguh.sakura@yahoo.com)">
     
     <!-- PWA Meta Tags -->
@@ -16,10 +16,10 @@
     <meta name="msapplication-TileColor" content="#007BFF">
     <meta name="msapplication-tap-highlight" content="no">
     
-    <title>MPPT Techfine Monitoring</title>
+    <title>MPPT Monitoring</title>
     
     <!-- Tambahkan library MQTT.js -->
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script src="./mqtt.min.js"></script>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
@@ -693,7 +693,7 @@
         }
 
         /* Media query for wider screens */
-        @media (min-width: 600px) {
+/*        @media (min-width: 600px) {
             .info-card {
                 display: grid;
                 column-gap: 20px;
@@ -730,9 +730,9 @@
                 display: contents;
             }
         }
-
+*/
         /* Mobile-specific styles */
-        @media (max-width: 599px) {
+/*        @media (max-width: 599px) {
             body {
                 padding: 10px;
             }
@@ -789,7 +789,7 @@
                 display: block !important;
             }
         }
-
+*/
         /* PWA Standalone Mode */
         @media (display-mode: standalone) {
             body {
@@ -915,6 +915,14 @@
                         <div class="metric">
                             <span class="metric-label">Current:</span>
                             <span class="metric-value"><span id="currentbat">0.00</span><span class="unit">A</span></span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Power:</span>
+                            <span class="metric-value"><span id="powerbat">0.00</span><span class="unit">W</span></span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Max Power:</span>
+                            <span class="metric-value"><span id="powerbatmax">0.00</span><span class="unit">W</span></span>
                         </div>
                         <div class="metric">
                             <span class="metric-label">Temperature:</span>
@@ -1153,6 +1161,8 @@ function resetUI() {
         'tempheatsink': '0.00',
         'voltagebat': '0.00',
         'currentbat': '0.00',
+        'powerbat': '0.00',
+        'powerbatmax': '0.00',
         'tempbat-value': '0.00',
         'energyah': '0',
         'energytoday': '0.00',
@@ -1408,6 +1418,14 @@ function updateUIWithData(data) {
     
     if (data.currentbat !== undefined) {
         updateElementText('currentbat', data.currentbat.toFixed(2));
+    }
+    
+    if (data.powerbat !== undefined) {
+        updateElementText('powerbat', data.powerbat.toFixed(1));
+    }
+
+    if (data.powerbatmax !== undefined) {
+        updateElementText('powerbatmax', data.powerbatmax.toFixed(1));
     }
     
     if (data.tempbat !== undefined) {
