@@ -70,7 +70,25 @@
                 -webkit-overflow-scrolling: touch;
             }
         }
-        
+
+        .main-container-border {
+            border: 3px solid #a0c4e8; /* Warna border biru muda */
+            border-radius: 20px; /* Sudut melengkung */
+            padding: 25px;
+            background-color: white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            width: 100%;
+            max-width: 850px; /* Sedikit lebih lebar dari guardian-container */
+        }
+        /* Optional: Background pattern yang subtle */
+        .main-container-border {
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(160, 196, 232, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(160, 196, 232, 0.1) 0%, transparent 20%);
+            background-attachment: fixed;
+        }
+
         .guardian-container {
             width: 100%;
             max-width: 800px;
@@ -378,37 +396,67 @@
             margin-top: 15px;
         }
 
-        .client-info {
+        .client-info-container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 15px;
             background-color: var(--card-bg-color);
-            padding: 12px 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
             border: 2px solid var(--card-border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
-        .client-name {
+        .client-name-display {
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            word-break: break-word; /* Untuk handle nama klien yang panjang */
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .client-name-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .client-name-value {
             font-weight: bold;
             color: #007BFF;
-            font-size: 1.1em;
+            font-size: 1.3em;
+            display: block;
+            padding: 5px 0;
+        }
+
+        .change-client-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
         }
 
         .change-client-btn {
             background-color: #dc3545; /* Warna merah */
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 15px 25px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
         }
 
         .change-client-btn:hover, .change-client-btn:active {
@@ -418,8 +466,9 @@
         }
 
         .change-client-btn i {
-            font-size: 16px;
+            font-size: 18px;
         }
+
 
         /* Status Container */
         .status-container {
@@ -692,104 +741,7 @@
             margin-bottom: 15px;
         }
 
-        /* Media query for wider screens */
-/*        @media (min-width: 600px) {
-            .info-card {
-                display: grid;
-                column-gap: 20px;
-            }
-            .info-card.pv-info {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .info-card.pv-info .card-title {
-                grid-column: 1 / -1;
-                margin-bottom: 15px;
-            }
 
-            .info-card.battery-info {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .info-card.battery-info .card-title {
-                grid-column: 1 / -1;
-                margin-bottom: 15px;
-            }
-            .info-card.battery-info > #battery-main,
-            .info-card.battery-info > #battery-energy {
-                display: contents;
-            }
-
-            .info-card.load-info {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .info-card.load-info .card-title {
-                grid-column: 1 / -1;
-                margin-bottom: 15px;
-            }
-            .info-card.load-info > #load-main,
-            .info-card.load-info > #load-energy {
-                display: contents;
-            }
-        }
-*/
-        /* Mobile-specific styles */
-/*        @media (max-width: 599px) {
-            body {
-                padding: 10px;
-            }
-            .guardian-container {
-                gap: 15px;
-            }
-            .info-section {
-                flex-direction: column;
-                align-items: center;
-                gap: 10px;
-            }
-            .icon-container {
-                padding-top: 0;
-                flex-basis: auto;
-                flex-direction: row;
-                align-items: center;
-            }
-            .arrow.down { display: none; }
-            .arrow.right::before { margin-left: 10px; }
-
-            .info-card {
-                width: 100%;
-            }
-            .card-title {
-                width: 100%;
-            }
-            .icon-placeholder {
-                font-size: 2.5em;
-            }
-
-            .tab-container {
-                display: flex;
-                justify-content: space-around;
-            }
-            .tab {
-                flex-grow: 1;
-                text-align: center;
-                border-radius: 5px 5px 0 0;
-            }
-            .tab:not(:first-child) {
-                margin-left: 2px;
-            }
-
-            .tab-content-wrapper {
-                flex-direction: column;
-            }
-
-            .tab-content {
-                flex: 1 0 100%;
-                display: none !important;
-            }
-
-            .tab-content.active {
-                display: block !important;
-            }
-        }
-*/
         /* PWA Standalone Mode */
         @media (display-mode: standalone) {
             body {
@@ -848,6 +800,7 @@
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
+      <div class="main-container-border">
         <div class="guardian-container">
             <section class="section-info">
                 <h1><font color='blue'><b>MPPT Monitoring</b></font></h1>
@@ -925,15 +878,9 @@
                             <span class="metric-value"><span id="powerbatmax">0.00</span><span class="unit">W</span></span>
                         </div>
                         <div class="metric">
-                            <span class="metric-label">Temperature:</span>
-                            <span class="metric-value"><span id="tempbat-value">0.00</span><span class="unit" id="tempbat-unit">&#8451;</span></span>
-                        </div>
-                        <div class="metric">
                             <span class="metric-label">Status Baterai:</span>
                             <span class="metric-value" id="batfullstate">---</span>
                         </div>
-                    </div>
-                    <div id="battery-energy" class="tab-content">
                         <div class="metric">
                             <span class="metric-label">Energy Today:</span>
                             <span class="metric-value"><span id="energyah">0</span><span class="unit">Ah</span></span>
@@ -958,6 +905,10 @@
                             <span class="metric-label">Month Cost:</span>
                             <span class="metric-value"><span class="unit">Rp </span><span id="monthcost">0.00</span></span>
                         </div>
+                        <div class="metric">
+                            <span class="metric-label">Temperature:</span>
+                            <span class="metric-value"><span id="tempbat-value">0.00</span><span class="unit" id="tempbat-unit">&#8451;</span></span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -970,14 +921,17 @@
                 <br>
             </section>
             <!-- Client Info Bar -->
-            <div class="client-info">
-                <div>
-                    <b>Nama Klien:</b> <span class="client-name" id="clientNameDisplay">-</span>
+            <div class="client-info-container">
+                <div class="client-name-display">
+                    <span class="client-name-label">Nama Klien Saat Ini:</span>
+                    <span class="client-name-value" id="clientNameDisplay">-</span>
                 </div>
-                <button class="change-client-btn" onclick="showConfirmation()">
+                <div class="change-client-container">  
+                    <button class="change-client-btn" onclick="showConfirmation()">
                     <span>✏️</span> <b>Ganti Nama Klien</b>
-                </button>
-            </div>
+                    </button>
+                </div>
+             </div>
         </div>
     </div>
 
@@ -1098,8 +1052,14 @@ function startMonitoring() {
     currentTopic = `mppt_techfine_samoto_amsan/${currentClientName}/alldata`;
     
     // Update tampilan
-    document.getElementById('clientNameDisplay').textContent = currentClientName;
-    
+    const clientNameDisplay = document.getElementById('clientNameDisplay');
+    clientNameDisplay.textContent = currentClientName;
+
+    // Tambahkan tooltip jika nama sangat panjang
+    if (currentClientName.length > 30) {
+      clientNameDisplay.title = currentClientName;
+    }
+
     // Sembunyikan modal, tampilkan konten utama
     document.getElementById('clientModal').classList.remove('active');
     document.getElementById('mainContent').classList.add('active');
@@ -1606,3 +1566,4 @@ window.getClientInfo = function() {
 </script>
 </body>
 </html>
+
