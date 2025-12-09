@@ -874,6 +874,10 @@
                             <span class="metric-value"><span id="powerbat">0.00</span><span class="unit">W</span></span>
                         </div>
                         <div class="metric">
+                            <span class="metric-label">Max Current:</span>
+                            <span class="metric-value"><span id="ampbatmax">0.00</span><span class="unit">A</span></span>
+                        </div>
+                        <div class="metric">
                             <span class="metric-label">Max Power:</span>
                             <span class="metric-value"><span id="powerbatmax">0.00</span><span class="unit">W</span></span>
                         </div>
@@ -906,9 +910,52 @@
                             <span class="metric-value"><span class="unit">Rp </span><span id="monthcost">0.00</span></span>
                         </div>
                         <div class="metric">
+                            <span class="metric-label">Total Cost:</span>
+                            <span class="metric-value"><span class="unit">Rp </span><span id="totalcost">0.00</span></span>
+                        </div>
+                        <div class="metric">
                             <span class="metric-label">Temperature:</span>
                             <span class="metric-value"><span id="tempbat-value">0.00</span><span class="unit" id="tempbat-unit">&#8451;</span></span>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="info-section">
+            <div class="icon-container">
+                <span class="icon-placeholder controller">&#128161;</span>
+            </div>
+            <div class="info-card load-info">
+                    <h3 class="card-title">Extra Information</h3>
+                    <div class="metric">
+                        <span class="metric-label">Load Percentage:</span>
+                        <span class="metric-value"><span id="loadpercentage">0.00</span><span class="unit">%</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Status Load:</span>
+                        <span class="metric-value" id="dcloadstate">---</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Bulk Charge Setting:</span>
+                        <span class="metric-value"><span id="bulkcharge">0.00</span><span class="unit">V</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Float Charge Setting:</span>
+                        <span class="metric-value"><span id="floatcharge">0.00</span><span class="unit">V</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Low Voltage Off Setting:</span>
+                        <span class="metric-value"><span id="lowvoloff">0.00</span><span class="unit">V</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Status Code:</span>
+                        <span class="metric-value">
+                           <span id="errorvalue">0x00</span>
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Free RAM:</span>
+                        <span class="metric-value"><span id="freeram">0.00</span><span class="unit">B</span></span>
                     </div>
                 </div>
             </section>
@@ -1114,22 +1161,28 @@ function confirmChangeClient() {
 function resetUI() {
     // Reset semua nilai di UI ke default
     const resetValues = {
-        'voltagepv': '0.00',
-        'currentpv': '0.00',
-        'psh': '0.00',
-        'tempmcu': '0.00',
-        'tempheatsink': '0.00',
-        'voltagebat': '0.00',
-        'currentbat': '0.00',
+        'voltagepv': '0.0',
+        'currentpv': '0.0',
+        'psh': '0.0',
+        'tempmcu': '0.0',
+        'tempheatsink': '0.0',
+        'voltagebat': '0.0',
+        'currentbat': '0.0',
         'powerbat': '0.00',
-        'powerbatmax': '0.00',
+        'ampbatmax': '0.0',
+        'powerbatmax': '0.0',
+        'bulkcharge': '0.0',
+        'floatcharge': '0.0',
+        'lowvoloff': '0.0',
         'tempbat-value': '0.00',
         'energyah': '0',
         'energytoday': '0.00',
         'energyyesterday': '0.00',
         'energymonth': '0.00',
         'energytotal': '0.00',
-        'monthcost': '0.00'
+        'monthcost': '0.00',
+        'totalcost': '0.00',
+        'freeram': '0.00'
     };
     
     // Reset semua nilai
@@ -1140,6 +1193,13 @@ function resetUI() {
         }
     });
     
+    // Reset error value khusus
+    const errorElement = document.getElementById('errorvalue');
+    if (errorElement) {
+        errorElement.textContent = '0x00';
+        errorElement.style.color = '#4CAF50'; // Reset warna ke hijau
+    }
+
     // Reset status text
     const statusElements = ['chargestate', 'batfullstate'];
     statusElements.forEach(id => {
@@ -1149,7 +1209,7 @@ function resetUI() {
             element.className = 'metric-value';
         }
     });
-    
+
     // Reset icon PV
     const pvIcon = document.getElementById('pv_icon');
     if (pvIcon) {
@@ -1276,6 +1336,28 @@ function updateElementText(id, text) {
     }
 }
 
+// Fungsi khusus untuk update error value dalam format hex
+function updateErrorValue(value) {
+    const element = document.getElementById('errorvalue');
+    if (element) {
+        // Konversi ke integer
+        const errorNum = parseInt(value);
+        
+        // Konversi ke hex dengan format 0xXX (2 digit)
+        // toString(16) konversi ke hex, padStart(2, '0') tambahkan leading zero jika perlu
+        const hexValue = '0x' + errorNum.toString(16).padStart(2, '0').toUpperCase();
+        
+        element.textContent = hexValue;
+        
+        // Tambahkan warna berdasarkan error value
+        if (errorNum === 0) {
+            element.style.color = '#4CAF50'; // Hijau untuk no error
+        } else {
+            element.style.color = '#f44336'; // Merah untuk error
+        }
+    }
+}
+
 function updateStatusText(id, value, stateOn, stateOff, classOn, classOff) {
     const element = document.getElementById(id);
     if (element) {
@@ -1384,15 +1466,43 @@ function updateUIWithData(data) {
         updateElementText('powerbat', data.powerbat.toFixed(1));
     }
 
+    if (data.ampbatmax !== undefined) {
+        updateElementText('ampbatmax', data.ampbatmax.toFixed(1));
+    }
+
     if (data.powerbatmax !== undefined) {
         updateElementText('powerbatmax', data.powerbatmax.toFixed(1));
     }
-    
+
+    if (data.bulkcharge !== undefined) {
+        updateElementText('bulkcharge', data.bulkcharge.toFixed(1));
+    }
+
+    if (data.floatcharge !== undefined) {
+        updateElementText('floatcharge', data.floatcharge.toFixed(1));
+    }
+
+    if (data.lowvoloff !== undefined) {
+        updateElementText('lowvoloff', data.lowvoloff.toFixed(1));
+    }
+
+    if (data.freeram !== undefined) {
+        updateElementText('freeram', data.freeram.toFixed(0));
+    }
+
+    if (data.errorvalue !== undefined) {
+        updateErrorValue(data.errorvalue);
+    }
+
     if (data.tempbat !== undefined) {
         updateTempBat(data.tempbat);
     }
-    
+
     // Update status
+    if (data.dcloadstate !== undefined) {
+        updateStatusText('dcloadstate', data.dcloadstate, 'On', 'Off', 'on', 'off');
+    }
+
     if (data.chargestate !== undefined) {
         updateStatusText('chargestate', data.chargestate, 'Charge', 'Off', 'charging', 'not-charging');
     }
@@ -1400,30 +1510,33 @@ function updateUIWithData(data) {
     if (data.batfullstate !== undefined) {
         updateStatusText('batfullstate', data.batfullstate, 'Terisi Penuh', 'Belum Penuh', 'battery-full-status', 'battery-not-full-status');
     }
-    
+
     // Update energy data
     if (data.energyah !== undefined) {
         updateElementText('energyah', data.energyah.toFixed(2));
     }
-    
+
     if (data.energytoday !== undefined) {
         updateElementText('energytoday', data.energytoday.toFixed(2));
     }
-    
+
     if (data.energyyesterday !== undefined) {
         updateElementText('energyyesterday', data.energyyesterday.toFixed(2));
     }
-    
+
     if (data.energymonth !== undefined) {
         updateElementText('energymonth', data.energymonth.toFixed(2));
     }
-    
+
     if (data.energytotal !== undefined) {
         updateElementText('energytotal', data.energytotal.toFixed(2));
     }
-    
+
     if (data.monthcost !== undefined) {
         updateElementText('monthcost', data.monthcost.toFixed(2));
+    }
+    if (data.totalcost !== undefined) {
+        updateElementText('totalcost', data.totalcost.toFixed(2));
     }
 }
 
