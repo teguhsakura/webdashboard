@@ -1056,11 +1056,12 @@
                     </div>
 
                     <div id="chartView" style="display:none; margin-top: 20px;">
-                        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border: 1px solid #eee; border-radius: 8px;
- padding: 10px; background: white;">
-                            <canvas id="energyChart" style="min-width: 600px;"></canvas>
+                        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;
+ touch-action: pan-x pan-y; width: 100%; border: 1px solid #eee; border-radius: 8px; padding: 10px; background: white; position: relative; min-height: 320px;">
+                            <canvas id="energyChart" style="min-width: 600px; display: block; height: 300px;"></canvas>
                         </div>
                     </div>
+
                 </div>
             </div>
 
