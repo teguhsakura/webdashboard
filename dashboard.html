@@ -21,8 +21,6 @@
     <!-- Tambahkan library MQTT.js -->
     <script src="./mqtt.min.js"></script>
     <script src="./chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/mqtt@4.3.2/dist/mqtt.min.js"></script>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
@@ -81,9 +79,9 @@
             background-color: white;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             margin: 10px;
-            width: 600px;
+            width: 100%;
+            max-width: 850px; /* Sedikit lebih lebar dari guardian-container */
         }
-
 
         .guardian-container {
             width: 100%;
@@ -1837,9 +1835,9 @@ function initMqttTableClient() {
 
                     const total = res.total !== undefined ? res.total.toFixed(2) : '0.00';
                     document.getElementById('dataStatus').innerHTML = 
-                      `✅ Data <span style="color:#2980b9;font-weight:bold;">${res.month}/${res.year}</span> dimuat ` +
+                      `✅ Data <span style="color:#2980b9;font-weight:bold;">${res.month}/${res.year}</span>` +
                       `(<span style="color:#2980b9;font-weight:bold;">${res.data.length}</span> hari)<br>` +
-                      `🔋 Total energi bulan ini: <span style="color:#2980b9;font-weight:bold;">${total} kWh</span>`;
+                      `🔋 Total energi: <span style="color:#2980b9;font-weight:bold;">${total} kWh</span>`;
                     
                     renderEnergyChart(res.data);
                 } else {
