@@ -21,6 +21,8 @@
     <!-- Tambahkan library MQTT.js -->
     <script src="./mqtt.min.js"></script>
     <script src="./chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/mqtt@4.3.2/dist/mqtt.min.js"></script>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
@@ -1053,8 +1055,11 @@
                         </table>
                     </div>
 
-                    <div id="chartView" style="display:none; height: 300px; margin-top: 20px;">
-                        <canvas id="energyChart"></canvas>
+                    <div id="chartView" style="display:none; margin-top: 20px;">
+                        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border: 1px solid #eee; border-radius: 8px;
+ padding: 10px; background: white;">
+                            <canvas id="energyChart" style="min-width: 600px;"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1861,6 +1866,15 @@ function renderEnergyChart(data) {
     const ctx = document.getElementById('energyChart').getContext('2d');
     const labels = data.map(d => d.date);
     const values = data.map(d => d.energy);
+
+    // Hitung lebar minimal: ~60px per kolom
+    const minWidth = Math.max(600, labels.length * 60);
+    const canvas = document.getElementById('energyChart');
+    canvas.style.width = minWidth + 'px';
+    canvas.style.height = '300px';
+    canvas.width = minWidth;
+    canvas.height = 300;
+
     energyChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -1874,11 +1888,10 @@ function renderEnergyChart(data) {
             }]
         },
         options: {
-            responsive: true,
+            responsive: false,
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, title: { display: true, text: 'kWh' } } },
-            plugins: { legend: { display: false } }
-        }
+            scales: { x: { ticks: {autoSkip: true, maxRotation: 45, minRotation: 45} }, y: { beginAtZero: true, title: { display: true, text: 'kWh' } } },
+            plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } } }
     });
 }
 
