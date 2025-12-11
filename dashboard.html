@@ -1056,9 +1056,9 @@
                     </div>
 
                     <div id="chartView" style="display:none; margin-top: 20px;">
-                        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;
- touch-action: pan-x pan-y; width: 100%; border: 1px solid #eee; border-radius: 8px; padding: 10px; background: white; position: relative; min-height: 320px;">
-                            <canvas id="energyChart" style="min-width: 600px; display: block; height: 300px;"></canvas>
+                        <div style="overflow-x: auto !important; -webkit-overflow-scrolling: touch !important;
+ width: 100%; border: 1px solid #eee; border-radius: 8px; padding: 10px; background: white;">
+                            <canvas id="energyChart" style="min-width: 800px; display: block;"></canvas>
                         </div>
                     </div>
 
@@ -1897,9 +1897,24 @@ function renderEnergyChart(data) {
 }
 
 function showView(view) {
-    document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
-    document.getElementById('chartView').style.display = view === 'chart' ? 'block' : 'none';
-    if (view === 'chart' && energyChart) energyChart.resize();
+    const tableView = document.getElementById('tableView');
+    const chartView = document.getElementById('chartView');
+    const body = document.body;
+
+    if (view === 'table') {
+        tableView.style.display = 'block';
+        chartView.style.display = 'none';
+        // Kembalikan body ke mode normal
+        body.style.overflowX = 'hidden';
+        body.style.touchAction = 'pan-y';
+    } else {
+        tableView.style.display = 'none';
+        chartView.style.display = 'block';
+        // ✅ Izinkan scroll horizontal hanya saat lihat grafik
+        body.style.overflowX = 'auto';
+        body.style.touchAction = 'pan-x pan-y'; // Izinkan scroll horizontal & vertikal
+        if (energyChart) energyChart.resize();
+    }
 }
 
 function requestData() {
