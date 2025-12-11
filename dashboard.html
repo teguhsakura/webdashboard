@@ -20,7 +20,10 @@
     
     <!-- Tambahkan library MQTT.js -->
     <script src="./mqtt.min.js"></script>
-    
+    <script src="./chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/mqtt@4.3.2/dist/mqtt.min.js"></script>
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
     
@@ -78,16 +81,9 @@
             background-color: white;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             margin: 10px;
-            width: 100%;
-            max-width: 850px; /* Sedikit lebih lebar dari guardian-container */
+            width: 600px;
         }
-        /* Optional: Background pattern yang subtle */
-        .main-container-border {
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(160, 196, 232, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(160, 196, 232, 0.1) 0%, transparent 20%);
-            background-attachment: fixed;
-        }
+
 
         .guardian-container {
             width: 100%;
@@ -696,6 +692,30 @@
             font-weight: bold;
         }
 
+        .tab-button {
+            padding: 10px 20px;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tab-button.active, .tab-button:hover {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        .tab-select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .tab-content-main {
+            transition: opacity 0.3s;
+        }
+
         /* Hide main content initially */
         .main-content {
             display: none;
@@ -813,8 +833,15 @@
                     Last update: <span id="last-update">--:--:--</span>
                 </div>
             </section>
-            <hr>
-            
+
+            <!-- Tab Navigation -->
+            <div class="tab-container-main" style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+                <button class="tab-button active" data-tab="main">Main</button>
+                <button class="tab-button" data-tab="table">Riwayat Energi</button>
+            </div>
+
+            <!-- Tab Content: Main -->
+            <div id="tab-main" class="tab-content-main" style="display: block;">
             <section class="info-section">
                 <div class="icon-container">
                     <span class="icon-placeholder solar-panel" id="pv_icon">☀️</span> <span class="arrow down" id="pv_arrow"></span>
@@ -847,7 +874,7 @@
                     </div>
                 </div>
             </section>
-
+            <br>
             <section class="info-section">
                 <div class="icon-container">
                     <span class="icon-placeholder battery">&#128267;</span><span class="arrow down" id="battery_arrow"></span>
@@ -920,7 +947,7 @@
                     </div>
                 </div>
             </section>
-
+            <br>
             <section class="info-section">
             <div class="icon-container">
                 <span class="icon-placeholder controller">&#128161;</span>
@@ -958,7 +985,81 @@
                         <span class="metric-value"><span id="freeram">0.00</span><span class="unit">B</span></span>
                     </div>
                 </div>
-            </section>
+              </section>
+            </div>
+
+            <!-- Tab Content: Tabel -->
+            <div id="tab-table" class="tab-content-main" style="display: none;">
+                <div style="background-color: white; border: 2px solid var(--card-border-color); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="text-align: center; margin-bottom: 20px; color: #333;">📊 Riwayat Energi Harian</h3>
+                    
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px;">
+                        <select id="yearSelect" class="tab-select">
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                            <option value="2029">2029</option>
+                            <option value="2030">2030</option>
+                            <option value="2031">2031</option>
+                            <option value="2032">2032</option>
+                            <option value="2033">2033</option>
+                            <option value="2034">2034</option>
+                            <option value="2035">2035</option>
+                            <option value="2036">2036</option>
+                            <option value="2037">2037</option>
+                            <option value="2038">2038</option>
+                            <option value="2039">2039</option>
+                            <option value="2040">2040</option>
+                            <option value="2041">2041</option>
+                            <option value="2042">2042</option>
+                            <option value="2043">2043</option>
+                            <option value="2044">2044</option>
+                            <option value="2045">2045</option>
+                            <option value="2046">2046</option>
+                        </select>
+                        <select id="monthSelect" class="tab-select">
+                            <option value="">-- Bulan --</option>
+                            <option value="01">Januari (01)</option>
+                            <option value="02">Februari (02)</option>
+                            <option value="03">Maret (03)</option>
+                            <option value="04">April (04)</option>
+                            <option value="05">Mei (05)</option>
+                            <option value="06">Juni (06)</option>
+                            <option value="07">Juli (07)</option>
+                            <option value="08">Agustus (08)</option>
+                            <option value="09">September (09)</option>
+                            <option value="10">Oktober (10)</option>
+                            <option value="11">November (11)</option>
+                            <option value="12">Desember (12)</option>
+                        </select>
+                        <button onclick="requestData()" class="tab-button" style="padding: 8px 16px;">Cek Riwayat</button>
+                    </div>
+
+                    <div class="status" id="dataStatus" style="text-align: center; min-height: 24px; font-weight: bold; margin: 12px 0;"></div>
+
+                    <div style="text-align: center; margin: 12px 0;">
+                        <button onclick="showView('table')" class="tab-button" style="margin: 0 6px;">Lihat Daftar</button>
+                        <button onclick="showView('chart')" class="tab-button" style="margin: 0 6px;">Lihat Grafik</button>
+                    </div>
+
+                    <div id="tableView">
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <thead>
+                                <tr>
+                                    <th style="background: #3498db; color: white; padding: 10px;">Tanggal</th>
+                                    <th style="background: #3498db; color: white; padding: 10px;">Energi (kWh)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="chartView" style="display:none; height: 300px; margin-top: 20px;">
+                        <canvas id="energyChart"></canvas>
+                    </div>
+                </div>
+            </div>
 
             <hr>
             <section class="section-info">
@@ -1113,7 +1214,10 @@ function startMonitoring() {
     
     // Mulai koneksi MQTT
     connectMQTT();
-    
+
+    // Inisialisasi MQTT untuk tabel
+    initMqttTableClient();
+
     // Simpan di localStorage untuk sesi berikutnya
     localStorage.setItem('mppt_client_name', currentClientName);
 }
@@ -1336,25 +1440,18 @@ function updateElementText(id, text) {
     }
 }
 
-// Fungsi khusus untuk update error value dalam format hex
+// Fungsi khusus untuk update error value agar jadi 0x
 function updateErrorValue(value) {
     const element = document.getElementById('errorvalue');
     if (element) {
-        // Konversi ke integer
-        const errorNum = parseInt(value);
-        
-        // Konversi ke hex dengan format 0xXX (2 digit)
-        // toString(16) konversi ke hex, padStart(2, '0') tambahkan leading zero jika perlu
-        const hexValue = '0x' + errorNum.toString(16).padStart(2, '0').toUpperCase();
-        
-        element.textContent = hexValue;
-        
-        // Tambahkan warna berdasarkan error value
-        if (errorNum === 0) {
-            element.style.color = '#4CAF50'; // Hijau untuk no error
-        } else {
-            element.style.color = '#f44336'; // Merah untuk error
-        }
+        // Perlakukan 'value' sebagai angka desimal yang merepresentasikan digit hex
+        // Contoh: 20 → tampilkan sebagai "0x20", bukan konversi 20 desimal ke hex
+        const num = parseInt(value);
+        const hexDisplay = '0x' + num.toString().padStart(2, '0').toUpperCase();
+        element.textContent = hexDisplay;
+
+        // Warna: hijau jika 0, merah jika lainnya
+        element.style.color = (num === 20) ? '#4CAF50' : '#f44336';
     }
 }
 
@@ -1676,6 +1773,144 @@ window.getClientInfo = function() {
         mqttClient: mqttClient ? 'Connected' : 'Disconnected'
     };
 };
+
+// ===== TAB SWITCHING =====
+document.querySelectorAll('.tab-button[data-tab]').forEach(button => {
+    button.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        // Update active button
+        document.querySelectorAll('.tab-button[data-tab]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        // Show/hide content
+        document.getElementById('tab-main').style.display = tabId === 'main' ? 'block' : 'none';
+        document.getElementById('tab-table').style.display = tabId === 'table' ? 'block' : 'none';
+    });
+});
+
+// ===== TABEL & GRAFIK LOGIC =====
+let currentData = null;
+let energyChart = null;
+
+// MQTT Client untuk tabel
+let mqttClientTable = null;
+
+function initMqttTableClient() {
+    if (mqttClientTable) {
+        mqttClientTable.end(); // Putuskan koneksi lama jika ada
+    }
+
+    // Pastikan currentClientName tersedia
+    if (!currentClientName) {
+        console.warn('currentClientName not set, cannot init table MQTT client');
+        return;
+    }
+
+    const clientId = `web_table_${currentClientName}_${Math.random().toString(16).substr(2, 8)}`;
+    const responseTopic = `mppt_techfine_samoto_amsan/${currentClientName}/response`;
+
+    mqttClientTable = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+        clientId: clientId,
+        username: 'emqx',
+        password: 'public',
+        clean: true,
+        reconnectPeriod: 3000
+    });
+
+    mqttClientTable.on('connect', () => {
+        console.log('✅ Tabel MQTT connected, subscribe to:', responseTopic);
+        mqttClientTable.subscribe(responseTopic);
+    });
+
+    mqttClientTable.on('message', (topic, payload) => {
+        if (topic === responseTopic) {
+            try {
+                const res = JSON.parse(payload.toString());
+                document.getElementById('tableBody').innerHTML = '';
+                if (energyChart) energyChart.destroy();
+
+                if (res.found && res.data && res.data.length > 0) {
+                    res.data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td style="padding: 8px; text-align: center; border-bottom: 1px solid #eee;">${item.date}</td><td style="padding: 8px; text-align: center; border-bottom: 1px solid #eee;">${item.energy.toFixed(2)}</td>`;
+                        document.getElementById('tableBody').appendChild(tr);
+                    });
+
+                    const total = res.total !== undefined ? res.total.toFixed(2) : '0.00';
+                    document.getElementById('dataStatus').innerHTML = 
+                      `✅ Data <span style="color:#2980b9;font-weight:bold;">${res.month}/${res.year}</span> dimuat ` +
+                      `(<span style="color:#2980b9;font-weight:bold;">${res.data.length}</span> hari)<br>` +
+                      `🔋 Total energi bulan ini: <span style="color:#2980b9;font-weight:bold;">${total} kWh</span>`;
+                    
+                    renderEnergyChart(res.data);
+                } else {
+                    document.getElementById('dataStatus').innerHTML = 
+                      `📭 Tidak ada data untuk <span style="color:#2980b9;font-weight:bold;">${res.month}/${res.year}</span>`;
+                    showView('table');
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('dataStatus').textContent = '❌ Gagal parse data';
+            }
+        }
+    });
+
+    mqttClientTable.on('error', (err) => {
+        console.error('Tabel MQTT error:', err);
+    });
+}
+
+function renderEnergyChart(data) {
+    const ctx = document.getElementById('energyChart').getContext('2d');
+    const labels = data.map(d => d.date);
+    const values = data.map(d => d.energy);
+    energyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Energi Harian (kWh)',
+                data: values,
+                backgroundColor: '#3498db',
+                borderColor: '#2980b9',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'kWh' } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+function showView(view) {
+    document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
+    document.getElementById('chartView').style.display = view === 'chart' ? 'block' : 'none';
+    if (view === 'chart' && energyChart) energyChart.resize();
+}
+
+function requestData() {
+    if (!currentClientName) {
+        alert('Nama klien belum dipilih!');
+        return;
+    }
+    const year = document.getElementById('yearSelect').value;
+    const month = document.getElementById('monthSelect').value;
+    if (!month) {
+        alert('Pilih bulan terlebih dahulu!');
+        return;
+    }
+
+    // Pastikan client tabel aktif
+    if (!mqttClientTable || !mqttClientTable.connected) {
+        initMqttTableClient();
+    }
+
+    const requestTopic = `mppt_techfine_samoto_amsan/${currentClientName}/request`;
+    document.getElementById('dataStatus').textContent = '📤 Mengirim permintaan...';
+    mqttClientTable.publish(requestTopic, JSON.stringify({ action: 'fetch', year: year, month: month }));
+}
 </script>
 </body>
 </html>
