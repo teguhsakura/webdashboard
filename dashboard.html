@@ -75,8 +75,8 @@
         }
 
         .main-container-border {
-           border: 3px solid #a0c4e8;
-           border-radius: 20px;
+           border: 3px solid #a0c4e8; /* Warna border biru muda */
+           border-radius: 20px; /* Sudut melengkung */
            padding: 25px; /* Padding di dalam */
            background-color: white;
            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
@@ -84,20 +84,9 @@
            margin: 10px auto; 
            /* Ganti width: 100% menjadi ini */
            width: calc(100% - 20px); /* 100% - (2 * margin horizontal) */
-           max-width: 850px; 
+           max-width: 850px; /* Sedikit lebih lebar dari guardian-container */
         }
-/*
-        .main-container-border {
-            border: 3px solid #a0c4e8; /* Warna border biru muda */
-/*            border-radius: 20px; /* Sudut melengkung */
-/*            padding: 25px;
-            background-color: white;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            width: 100%;
-            max-width: 850px; /* Sedikit lebih lebar dari guardian-container */
-        }
-*/
+
         .guardian-container {
             width: 100%;
             max-width: 800px;
@@ -230,7 +219,7 @@
             align-items: center;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden;
+            overflow-x: auto;
         }
 
         /* PWA Install Prompt */
@@ -789,6 +778,13 @@
             }
         }
 
+        /* Pastikan grafik canvas selalu mengambil lebar 100% dari kontainer induknya */
+        #energyChart {
+          width: 100% !important;
+          height: auto !important; /* Penting untuk responsif */
+          display: block;
+        }
+    
     </style>
 </head>
 <body>
@@ -1068,9 +1064,14 @@
                         </table>
                     </div>
 
-                    <div id="chartView" style="display:none; margin-top: 20px; min-height: 500px; width: 320px;">
-                    <canvas id="energyChart"></canvas>
-                   </div>
+                    <div id="tab-table" class="tab-content-main" style="display: none;"> 
+                      <div style="background-color: white; border: 2px solid var(--card-border-color); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
+                        <div id="chartView" style="display:none; margin-top: 20px; min-height: 500px;">
+                          <canvas id="energyChart"></canvas>
+                        </div>
+                      </div>
+                    </div>
+                    
                 </div>
             </div>
 
