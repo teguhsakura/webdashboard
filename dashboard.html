@@ -50,7 +50,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
+            overflow-x: auto;
             -webkit-overflow-scrolling: touch !important; /* iOS smooth scroll */
             overscroll-behavior-y: contain; /* Better scroll control */
             touch-action: pan-y; /* Allow vertical scrolling */
@@ -75,16 +75,29 @@
         }
 
         .main-container-border {
+           border: 3px solid #a0c4e8;
+           border-radius: 20px;
+           padding: 25px; /* Padding di dalam */
+           background-color: white;
+           box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+           /* Ganti margin 10px menjadi margin vertikal saja dan auto horizontal */
+           margin: 10px auto; 
+           /* Ganti width: 100% menjadi ini */
+           width: calc(100% - 20px); /* 100% - (2 * margin horizontal) */
+           max-width: 850px; 
+        }
+/*
+        .main-container-border {
             border: 3px solid #a0c4e8; /* Warna border biru muda */
-            border-radius: 20px; /* Sudut melengkung */
-            padding: 25px;
+/*            border-radius: 20px; /* Sudut melengkung */
+/*            padding: 25px;
             background-color: white;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             margin: 10px;
             width: 100%;
             max-width: 850px; /* Sedikit lebih lebar dari guardian-container */
         }
-
+*/
         .guardian-container {
             width: 100%;
             max-width: 800px;
