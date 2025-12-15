@@ -18,7 +18,7 @@
     
     <title>MPPT Monitoring</title>
     
-    <!-- Tambahkan library MQTT.js dan Chart.js -->
+    <!-- Tambahkan library MQTT.js -->
     <script src="./mqtt.min.js"></script>
     <script src="./chart.js"></script>
 
@@ -1682,6 +1682,12 @@ function updateUIWithData(data) {
 }
 
 // ===== FUNGSI MQTT UNTUK TABEL ENERGI =====
+// Tambahkan fungsi ini di bagian FUNGSI MQTT UNTUK TABEL ENERGI
+function isDesktop() {
+    // Sesuaikan batas lebar ini sesuai keinginan Anda
+    return window.matchMedia('(min-width: 768px)').matches;
+}
+
 function initEnergyMQTT() {
     if (energyMqttClient && energyMqttClient.connected) {
         if (currentResponseTopic) {
@@ -1871,19 +1877,23 @@ function processMonthlyResponse(res) {
 function renderDailyChart(data) {
     const canvas = document.getElementById('energyChartDaily');
     const ctx = canvas.getContext('2d');
-
-// --- START: Hitung Tinggi Dinamis untuk Horizontal Bar Chart ---
-    // Atur tinggi setiap bar (termasuk jarak)
-    const barHeight = 25; 
-    // Tambahkan padding untuk sumbu X di bagian bawah
-    const axisPadding = 80; 
-    // Hitung tinggi yang dibutuhkan (Min 250px)
-    const requiredHeight = (data.length * barHeight) + axisPadding;
     
-    // Terapkan tinggi ke kanvas dan container-nya
-    canvas.style.height = `${Math.max(250, requiredHeight)}px`;
-    document.getElementById('chartViewDaily').style.height = `${Math.max(250, requiredHeight)}px`;
-    // --- END: Hitung Tinggi Dinamis ---
+    // Logika Deteksi Layar
+    const isDesktopView = isDesktop();
+    const axis = isDesktopView ? 'x' : 'y'; // 'x' untuk Vertikal (Desktop), 'y' untuk Horizontal (Mobile)
+
+    if (isDesktopView) {
+        // Mode Desktop (Vertikal): Tinggi Ditetapkan (e.g., 250px). Lebar akan 100%.
+        canvas.style.height = `250px`;
+        document.getElementById('chartViewDaily').style.height = `250px`;
+    } else {
+        // Mode Mobile (Horizontal): Hitung Tinggi Dinamis
+        const barHeight = 25; 
+        const axisPadding = 80; 
+        const requiredHeight = (data.length * barHeight) + axisPadding;
+        canvas.style.height = `${Math.max(250, requiredHeight)}px`;
+        document.getElementById('chartViewDaily').style.height = `${Math.max(250, requiredHeight)}px`;
+    }
 
     const labels = data.map(d => d.date);
     const values = data.map(d => d.energy);
@@ -1906,26 +1916,30 @@ function renderDailyChart(data) {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y',
+            // 💡 PERBAIKAN: Selalu gunakan false agar lebar 100% di desktop
+            maintainAspectRatio: false, 
+            indexAxis: axis, 
             plugins: {
                 legend: {
                     display: false
                 }
             },
             scales: {
-                x: {
+                // ... (Konfigurasi scales tetap sama)
+                [isDesktopView ? 'x' : 'y']: {
+                    // Sumbu Kategori (Tanggal)
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 40
+                    }
+                },
+                [isDesktopView ? 'y' : 'x']: {
+                    // Sumbu Nilai (Energi)
                     beginAtZero: true,
                     title: { 
                         display: true, 
                         text: 'kWh',
                         color: '#2980b9'
-                    }
-                },
-                y: {
-                    ticks: {
-                        autoSkip: true,
-                        maxTicksLimit: 10
                     }
                 }
             }
@@ -1937,6 +1951,10 @@ function renderMonthlyChart(data) {
     const canvas = document.getElementById('energyChartMonthly');
     const ctx = canvas.getContext('2d');
 
+    // Logika Deteksi Layar
+    const isDesktopView = isDesktop();
+    const axis = isDesktopView ? 'x' : 'y'; 
+    
     data.sort((a, b) => {
         const monthA = parseInt(a.date.split('-')[0]);
         const monthB = parseInt(b.date.split('-')[0]);
@@ -1955,15 +1973,18 @@ function renderMonthlyChart(data) {
 
     if (monthlyChart) monthlyChart.destroy();
 
-// --- START: Hitung Tinggi Dinamis untuk Horizontal Bar Chart ---
-    const barHeight = 35; // Set lebih besar karena data biasanya max 12
-    const axisPadding = 80;
-    const requiredHeight = (labels.length * barHeight) + axisPadding;
-    
-    // Terapkan tinggi ke kanvas dan container-nya
-    canvas.style.height = `${Math.max(250, requiredHeight)}px`;
-    document.getElementById('chartViewMonthly').style.height = `${Math.max(250, requiredHeight)}px`;
-    // --- END: Hitung Tinggi Dinamis ---
+    if (isDesktopView) {
+        // Mode Desktop (Vertikal): Tinggi Ditetapkan (e.g., 250px). Lebar akan 100%.
+        canvas.style.height = `250px`;
+        document.getElementById('chartViewMonthly').style.height = `250px`;
+    } else {
+        // Mode Mobile (Horizontal): Hitung Tinggi Dinamis
+        const barHeight = 35; 
+        const axisPadding = 80;
+        const requiredHeight = (labels.length * barHeight) + axisPadding;
+        canvas.style.height = `${Math.max(250, requiredHeight)}px`;
+        document.getElementById('chartViewMonthly').style.height = `${Math.max(250, requiredHeight)}px`;
+    }
 
     monthlyChart = new Chart(ctx, {
         type: 'bar',
@@ -1981,15 +2002,21 @@ function renderMonthlyChart(data) {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y',
+            // 💡 PERBAIKAN: Selalu gunakan false agar lebar 100% di desktop
+            maintainAspectRatio: false, 
+            indexAxis: axis, 
             plugins: {
                 legend: {
                     display: false
                 }
             },
             scales: {
-                x: {
+                // ... (Konfigurasi scales tetap sama)
+                [isDesktopView ? 'x' : 'y']: {
+                    // Sumbu Kategori (Bulan)
+                },
+                [isDesktopView ? 'y' : 'x']: {
+                    // Sumbu Nilai (Energi)
                     beginAtZero: true,
                     title: { 
                         display: true, 
