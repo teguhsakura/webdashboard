@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
@@ -36,13 +36,14 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="./icons/icon-192x192.png">
     
-<style>
+    <style>
         /* ===== FIX SCROLLING ISSUES ===== */
         
         /* Reset untuk scrolling */
         * {
             -webkit-tap-highlight-color: rgba(0,0,0,0);
             -webkit-touch-callout: none;
+            box-sizing: border-box;
         }
         
         html, body {
@@ -50,10 +51,10 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch !important; /* iOS smooth scroll */
-            overscroll-behavior-y: contain; /* Better scroll control */
-            touch-action: pan-y; /* Allow vertical scrolling */
+            overflow-x: hidden; /* Penting: Hilangkan scroll horizontal */
+            -webkit-overflow-scrolling: touch !important;
+            overscroll-behavior-y: contain;
+            touch-action: pan-y;
             position: relative;
         }
         
@@ -61,6 +62,12 @@
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
             min-height: 100vh;
+            background: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         /* Fix untuk iOS Safari */
@@ -75,16 +82,15 @@
         }
 
         .main-container-border {
-           border: 3px solid #a0c4e8; /* Warna border biru muda */
-           border-radius: 20px; /* Sudut melengkung */
-           padding: 25px; /* Padding di dalam */
+           border: 3px solid #007BFF;
+           border-radius: 20px;
+           padding: 15px;
            background-color: white;
-           box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-           /* Ganti margin 10px menjadi margin vertikal saja dan auto horizontal */
+           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
            margin: 10px auto; 
-           /* Ganti width: 100% menjadi ini */
-           width: calc(100% - 20px); /* 100% - (2 * margin horizontal) */
-           max-width: 850px; /* Sedikit lebih lebar dari guardian-container */
+           width: calc(100% - 20px);
+           max-width: 850px;
+           overflow: hidden; /* Pastikan tidak ada overflow */
         }
 
         .guardian-container {
@@ -92,199 +98,244 @@
             max-width: 800px;
             display: flex;
             flex-direction: column;
-            gap: 25px;
-            touch-action: pan-y; /* Critical for scrolling */
+            gap: 20px;
+            touch-action: pan-y;
             -webkit-overflow-scrolling: touch;
         }
-        
-        /* Fix untuk semua elemen yang bisa discroll */
-        .info-card, 
-        .section-info, 
-        .client-info,
-        .modal-content,
-        .confirmation-content,
-        .tab-content {
-            touch-action: pan-y;
-            user-select: none; /* Prevent text selection on touch */
-            -webkit-user-select: none;
-        }
-        
-        /* Modal fix */
-        .modal {
-            position: fixed;
-            overflow-y: auto !important;
-            -webkit-overflow-scrolling: touch !important;
-            touch-action: pan-y;
-        }
-        
-        .modal-content {
-            max-height: 90vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-y;
-        }
-        
-        /* Fix untuk text input di mobile */
-        input, textarea, button, select {
-            font-size: 16px !important; /* Prevent iOS zoom */
-            touch-action: manipulation; /* Faster tap response */
-        }
-        
-        /* Better button tap feedback */
-        button {
-            transition: transform 0.1s ease;
-        }
-        
-        button:active {
-            transform: scale(0.98);
-        }
-        
-        /* Fix untuk metric items */
-        .metric {
-            min-height: 44px; /* Minimum touch target size */
-            padding: 12px 0;
-            align-items: center;
-        }
-        
-        /* Fix tab untuk mobile */
-        .tab {
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: manipulation;
-        }
-        
-        /* Remove any fixed heights that might block scrolling */
-        .main-content {
-            min-height: 100vh;
-            overflow-y: visible !important;
-        }
-        
-        /* Safari specific fixes */
-        _::-webkit-full-page-media, _:future, :root body {
-            position: absolute;
-        }
-        
-        /* Chrome mobile fix */
-        @media screen and (max-width: 768px) {
-            body {
-                position: relative;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            /* Allow momentum scrolling */
-            .guardian-container {
-                overflow-y: visible;
-            }
-        }
 
-        :root {
-            --body-bg-color: #f0f4f8; /* Light grayish blue background */
-            --card-bg-color: #ffffff;
-            --card-border-color: #a0c4e8; /* Light blue border from image */
-            --text-color-primary: #333333;
-            --text-color-secondary: #555555;
-            --text-color-value: #000000;
-            --icon-color: #777777;
-            --arrow-color: #a0c4e8; /* Dashed arrows color */
-            --tab-bg-color: #e0e0e0;
-            --tab-active-bg-color: #ffffff;
-            --tab-text-color: var(--tab-text-color-secondary);
-            --tab-active-text-color: var(--text-color-primary);
-            --button-on-bg-color: #4CAF50; /* Green for ON */
-            --button-off-bg-color: #f44336; /* Red for OFF */
-            --button-text-color: white;
-            --button-padding: 8px 15px;
-            --button-border-radius: 5px;
-
-            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-        }
-
-        * {
-            box-sizing: border-box;
+        .section-info {
+            text-align: center;
+            flex-grow: 1;
+            background-color: white;
+            border: 2px solid #007BFF;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
             margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
+            width: 100%;
+            overflow: hidden;
         }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--body-bg-color);
-            color: var(--text-color-primary);
-            padding: 10px;
+        
+        .section-info h1 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .energy-tab-container {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .data-section {
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            overflow: hidden;
+        }
+        
+        .data-section.monthly-section {
+            border-color: #2ecc71;
+        }
+        
+        .data-section h2 {
+            margin-top: 0;
+            color: #2980b9;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+            font-size: 1.2em;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .data-section.monthly-section h2 {
+            color: #27ae60;
+            border-bottom-color: #2ecc71;
+        }
+        
+        .control {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 12px 0;
+            width: 100%;
+        }
+        
+        .control select, .control button {
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            max-width: 100%;
+        }
+        
+        .control select {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .control button {
+            flex: 1;
+            min-width: 140px;
+            font-weight: bold;
+        }
+        
+        .daily-button {
+            background-color: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .daily-button:active {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        .monthly-button {
+            background-color: #2ecc71;
+            color: white;
+            border-color: #27ae60;
+        }
+        
+        .monthly-button:active {
+            background-color: #27ae60;
+            transform: translateY(-1px);
+        }
+        
+        .status {
+            text-align: center;
+            min-height: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 14px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .connected { color: #27ae60; background: #e8f6ef; }
+        .disconnected { color: #e74c3c; background: #fdedec; }
+        .loading { color: #f39c12; background: #fef9e7; }
+        .notfound { color: #95a5a6; background: #f8f9fa; }
+        .success { color: #27ae60; background: #e8f6ef; }
+        .success-daily { color: #2980b9; background: #e8f4fc; border-left: 4px solid #3498db;}
+        .success-monthly { color: #27ae60; background: #e8f6ef; border-left: 4px solid #3ADB34;}
+        
+        /* Tabel Style untuk Mobile */
+        .daily-table, .monthly-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 14px;
+            table-layout: fixed;
+        }
+        
+        .daily-table th, .daily-table td,
+        .monthly-table th, .monthly-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .daily-table th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .monthly-table th {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .daily-table tr:hover { background-color: #f0f7ff; }
+        .monthly-table tr:hover { background-color: #f0fff4; }
+        
+        /* Chart Container untuk Mobile - Horizontal */
+        .chart-container-mobile {
+            margin-top: 15px;
+            min-height: 250px;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            position: relative;
+        }
+        
+        .chart-container-mobile canvas {
+            display: block;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 12px 0;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        .view-toggle button {
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            flex: 1;
+            min-width: 140px;
+            min-height: 44px;
+            max-width: calc(50% - 10px);
+        }
+        
+        .view-toggle button.daily {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .view-toggle button.daily:active {
+            background-color: #2980b9;
+        }
+        
+        .view-toggle button.monthly {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .view-toggle button.monthly:active {
+            background-color: #27ae60;
+        }
+        
+        /* Layout untuk tabel dan chart side-by-side */
+        .table-chart-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            overflow-x: auto;
+            gap: 15px;
+            width: 100%;
         }
-
-        /* PWA Install Prompt */
-        .install-prompt {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #007BFF;
-            color: white;
-            padding: 15px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 9999;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            animation: slideUp 0.3s ease;
+        
+        /* Hide class */
+        .hidden {
+            display: none !important;
         }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .install-prompt-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-        }
-
-        .install-icon {
-            font-size: 24px;
-        }
-
-        .install-text {
-            flex: 1;
-            font-size: 14px;
-        }
-
-        .install-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .install-btn {
-            background: white;
-            color: #007BFF;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .dismiss-btn {
-            background: transparent;
-            color: white;
-            border: 1px solid white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        /* Modal/Popup Styles */
+        
         .modal {
             display: none;
             position: fixed;
@@ -297,21 +348,25 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
+            overflow: hidden !important;
         }
-
+        
         .modal.active {
             display: flex;
         }
 
         .modal-content {
             background-color: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             width: 90%;
             max-width: 400px;
             text-align: center;
             animation: modalFadeIn 0.3s ease;
+            overflow: hidden !important;
+            margin: 0 auto;
+            position: relative;
         }
 
         @keyframes modalFadeIn {
@@ -321,23 +376,27 @@
 
         .modal h2 {
             color: #007BFF;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            padding: 0 10px;
+            word-wrap: break-word;
         }
 
-        .modal h3 {
-            color: #dc3545;
-            margin-bottom: 15px;
+        .modal p {
+            padding: 0 10px;
+            word-wrap: break-word;
         }
 
         .modal input {
             width: 100%;
-            padding: 15px;
-            margin: 15px 0;
+            padding: 12px;
+            margin: 12px 0;
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
             text-align: center;
             outline: none;
+            box-sizing: border-box;
         }
 
         .modal input:focus {
@@ -348,125 +407,52 @@
             background-color: #007BFF;
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
             width: 100%;
-            transition: background-color 0.3s;
             font-weight: bold;
+            box-sizing: border-box;
         }
 
-        .modal button:hover, .modal button:active {
-            background-color: #0056b3;
-        }
-
-        .modal button.btn-danger {
-            background-color: #dc3545;
-        }
-
-        .modal button.btn-danger:hover, .modal button.btn-danger:active {
-            background-color: #c82333;
-        }
-
-        .modal button.btn-secondary {
-            background-color: #6c757d;
-        }
-
-        .modal button.btn-secondary:hover, .modal button.btn-secondary:active {
-            background-color: #5a6268;
-        }
-
-        .button-group-modal {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .button-group-modal button {
-            flex: 1;
-        }
-
-        .info-text {
-            font-size: 14px;
-            color: #666;
-            margin-top: 15px;
-        }
-
-        .client-info-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background-color: var(--card-bg-color);
-            border: 2px solid var(--card-border-color);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .client-name-display {
-            text-align: center;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-            word-break: break-word; /* Untuk handle nama klien yang panjang */
-            overflow-wrap: break-word;
-            hyphens: auto;
-        }
-
-        .client-name-label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .client-name-value {
-            font-weight: bold;
-            color: #007BFF;
-            font-size: 1.3em;
-            display: block;
-            padding: 5px 0;
-        }
-
-        .change-client-container {
-            display: flex;
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
             justify-content: center;
-            margin-top: 10px;
-        }
-
-        .change-client-btn {
-            background-color: #dc3545; /* Warna merah */
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s;
-            display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
+            backdrop-filter: blur(5px);
+            overflow: hidden !important;
         }
 
-        .change-client-btn:hover, .change-client-btn:active {
-            background-color: #c82333; /* Warna merah lebih gelap saat hover */
-            transform: translateY(-2px);
-            box-shadow: 0 3px 6px rgba(220, 53, 69, 0.2);
+        .confirmation-modal.active {
+            display: flex;
         }
 
-        .change-client-btn i {
-            font-size: 18px;
+        .confirmation-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            animation: modalFadeIn 0.3s ease;
+            overflow: hidden;
         }
 
+        .confirmation-icon {
+            font-size: 48px;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
 
         /* Status Container */
         .status-container {
@@ -475,6 +461,8 @@
             justify-content: center;
             gap: 10px;
             margin: 10px 0;
+            flex-wrap: wrap;
+            width: 100%;
         }
         
         .status-indicator {
@@ -482,6 +470,7 @@
             height: 12px;
             border-radius: 50%;
             display: inline-block;
+            flex-shrink: 0;
         }
         
         .status-connected { background-color: #28a745; }
@@ -499,50 +488,48 @@
             color: #666;
             margin-top: 5px;
             text-align: center;
-        }
-
-        /* Button Group */
-        .guardian-container {
             width: 100%;
-            max-width: 800px;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            margin-bottom: 80px; /* Space for install prompt */
         }
 
-        .button-group {
+        /* Tab Navigation */
+        .tab-container-main {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
+            gap: 10px;
+            margin: 15px 0;
+            width: 100%;
+            flex-wrap: wrap;
         }
 
-        .button-group button {
-            background-color: #007BFF;
-            color: white;
-            padding: 15px 20px;
-            border: none;
-            border-radius: var(--button-border-radius);
+        .tab-button {
+            padding: 12px 20px;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
             font-weight: bold;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            flex-basis: calc(33% - 10px);
-            max-width: 180px;
+            transition: all 0.2s;
+            font-size: 14px;
             min-width: 120px;
+            min-height: 44px;
+            flex: 1;
+            max-width: calc(50% - 10px);
+            text-align: center;
+        }
+        
+        .tab-button.active, .tab-button:active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
         }
 
-        .button-group button:hover, .button-group button:active {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-        }
-
+        /* Info Section Styles */
         .info-section {
             display: flex;
             align-items: flex-start;
-            gap: 20px;
+            gap: 15px;
+            width: 100%;
+            overflow: hidden;
         }
 
         .icon-container {
@@ -551,13 +538,13 @@
             align-items: center;
             justify-content: flex-start;
             padding-top: 10px;
-            flex-basis: 80px;
+            flex-basis: 60px;
             flex-shrink: 0;
         }
 
         .icon-placeholder {
-            font-size: 3em;
-            color: var(--icon-color);
+            font-size: 2.5em;
+            color: #777777;
             margin-bottom: 10px;
             line-height: 1;
         }
@@ -565,97 +552,60 @@
         .icon-placeholder.moon-icon { color: #a0aec0; }
         .icon-placeholder.controller { color: #546e7a; }
         .icon-placeholder.battery { color: #4caf50; }
-        .icon-placeholder.load { font-size: 2em; margin-top: 5px; color: #ffeb3b; }
-
-        .arrow {
-            font-size: 1.5em;
-            color: var(--arrow-color);
-            line-height: 1;
-            display: none;
-        }
-        .arrow.down::before { content: '⬇'; }
-        .arrow.right::before { content: '➡'; margin-left: 50px; }
+        .icon-placeholder.load { font-size: 1.8em; margin-top: 5px; color: #ffeb3b; }
 
         .info-card {
             flex-grow: 1;
-            background-color: var(--card-bg-color);
-            border: 2px solid var(--card-border-color);
+            background-color: white;
+            border: 2px solid #007BFF;
             border-radius: 15px;
-            padding: 15px;
+            padding: 12px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
         }
 
         .card-title {
-            font-size: 1.1em;
+            font-size: 1em;
             font-weight: bold;
-            color: var(--text-color-primary);
-            margin-bottom: 15px;
+            color: #333;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .tab-container {
-            display: none;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 10px;
-        }
-
-        .tab {
-            padding: 10px 15px;
-            cursor: pointer;
-            background-color: var(--tab-bg-color);
-            color: var(--tab-text-color);
-            border: 1px solid var(--tab-bg-color);
-            border-bottom: none;
-            border-radius: 5px 5px 0 0;
-            font-size: 0.9em;
-        }
-
-        .tab.active {
-            background-color: var(--tab-active-bg-color);
-            color: var(--tab-active-text-color);
-            border-color: var(--card-border-color);
-            border-bottom-color: var(--tab-active-bg-color);
-            font-weight: bold;
-        }
-
-        .tab-content-wrapper {
-            display: flex;
-            gap: 20px;
-        }
-
-        .tab-content {
-            flex: 1;
-            padding-top: 10px;
+            flex-wrap: wrap;
         }
 
         .metric {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
-            font-size: 0.95em;
+            padding: 10px 0;
+            font-size: 0.9em;
+            width: 100%;
         }
         .metric:not(:last-child) {
             border-bottom: 1px dashed #e0e0e0;
         }
 
         .metric-label {
-            color: var(--text-color-secondary);
+            color: #555;
+            flex-shrink: 0;
         }
 
         .metric-value {
-            color: var(--text-color-value);
+            color: #000;
             font-weight: bold;
+            text-align: right;
+            flex: 1;
+            margin-left: 10px;
+            word-break: break-word;
         }
         .unit {
             font-size: 0.9em;
-            color: var(--text-color-secondary);
+            color: #555;
             margin-left: 4px;
         }
 
-        /* Tambahkan di bagian CSS */
         .no-sensor {
             color: #dc3545;
             font-style: italic;
@@ -678,91 +628,164 @@
             color: #ff9800;
         }
 
-        /* Style for the bottom information */
-        .section-info {
-            text-align: center;
-            flex-grow: 1;
-            background-color: var(--card-bg-color);
-            border: 2px solid var(--card-border-color);
+        /* Client Info Container */
+        .client-info-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: white;
+            border: 2px solid #007BFF;
             border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            margin-bottom: 15px;
+            width: 100%;
+            overflow: hidden;
         }
 
-        .section-info a {
-            text-decoration: none;
-            font-weight: bold;
+        .client-name-display {
+            text-align: center;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            word-break: break-word;
+            width: 100%;
         }
 
-        .tab-button {
-            padding: 10px 20px;
-            background-color: #e0e0e0;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
+        .client-name-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            display: block;
         }
-        .tab-button.active, .tab-button:hover {
-            background-color: #3498db;
+
+        .client-name-value {
+            font-weight: bold;
+            color: #007BFF;
+            font-size: 1.2em;
+            display: block;
+            padding: 5px 0;
+            word-break: break-word;
+        }
+
+        .change-client-btn {
+            background-color: #dc3545;
             color: white;
-            border-color: #3498db;
-        }
-        .tab-select {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 15px;
-        }
-        .tab-content-main {
-            transition: opacity 0.3s;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            min-height: 44px;
+            box-sizing: border-box;
         }
 
         /* Hide main content initially */
         .main-content {
             display: none;
+            width: 100%;
         }
 
         .main-content.active {
             display: block;
-        }
-
-        /* Confirmation Modal */
-        .confirmation-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1001;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
         }
 
-        .confirmation-modal.active {
+        /* Button Group Modal */
+        .button-group-modal {
             display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .button-group-modal button {
+            flex: 1;
+            padding: 12px;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d !important;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545 !important;
         }
 
-        .confirmation-content {
-            background-color: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 350px;
-            text-align: center;
-            animation: modalFadeIn 0.3s ease;
+        /* PWA Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #007BFF;
+            color: white;
+            padding: 15px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 9999;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            animation: slideUp 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .confirmation-icon {
-            font-size: 48px;
-            color: #dc3545;
-            margin-bottom: 15px;
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
 
+        .install-prompt-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .install-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .install-text {
+            flex: 1;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .install-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .install-btn {
+            background: white;
+            color: #007BFF;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .dismiss-btn {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
 
         /* PWA Standalone Mode */
         @media (display-mode: standalone) {
@@ -777,14 +800,33 @@
                 display: none !important;
             }
         }
-
-        /* Pastikan grafik canvas selalu mengambil lebar 100% dari kontainer induknya */
-        #energyChart {
-          width: 100% !important;
-          height: auto !important; /* Penting untuk responsif */
-          display: block;
+        
+        /* GLOBAL OVERFLOW FIX */
+        .main-container-border * {
+            max-width: 100%;
         }
-    
+        
+        /* Mobile specific fixes */
+        @media screen and (max-width: 480px) {
+            .control select, .control button {
+                min-width: 100%;
+            }
+            
+            .view-toggle button {
+                min-width: 100%;
+                max-width: 100%;
+            }
+            
+            .tab-button {
+                min-width: 100%;
+                max-width: 100%;
+            }
+            
+            .modal-content {
+                padding: 20px 15px;
+                width: 95%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -844,16 +886,16 @@
             </section>
 
             <!-- Tab Navigation -->
-            <div class="tab-container-main" style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+            <div class="tab-container-main">
                 <button class="tab-button active" data-tab="main">Main</button>
-                <button class="tab-button" data-tab="table">Riwayat Energi</button>
+                <button class="tab-button" data-tab="energy">Riwayat Energi</button>
             </div>
 
             <!-- Tab Content: Main -->
             <div id="tab-main" class="tab-content-main" style="display: block;">
             <section class="info-section">
                 <div class="icon-container">
-                    <span class="icon-placeholder solar-panel" id="pv_icon">☀️</span> <span class="arrow down" id="pv_arrow"></span>
+                    <span class="icon-placeholder solar-panel" id="pv_icon">☀️</span>
                 </div>
                 <div class="info-card pv-info">
                     <h3 class="card-title">PV Information</h3>
@@ -886,82 +928,74 @@
             <br>
             <section class="info-section">
                 <div class="icon-container">
-                    <span class="icon-placeholder battery">&#128267;</span><span class="arrow down" id="battery_arrow"></span>
+                    <span class="icon-placeholder battery">&#128267;</span>
                 </div>
                 <div class="info-card battery-info">
-                    <h3 class="card-title">
-                        Battery Information
-                        <div class="tab-container">
-                            <div class="tab active" onclick="openTab(event, 'battery-main')">Main</div>
-                            <div class="tab" onclick="openTab(event, 'battery-energy')">Energy</div>
-                        </div>
-                    </h3>
-                    <div id="battery-main" class="tab-content active">
-                        <div class="metric">
-                            <span class="metric-label">Voltage:</span>
-                            <span class="metric-value"><span id="voltagebat">0.00</span><span class="unit">V</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Current:</span>
-                            <span class="metric-value"><span id="currentbat">0.00</span><span class="unit">A</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Power:</span>
-                            <span class="metric-value"><span id="powerbat">0.00</span><span class="unit">W</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Max Current:</span>
-                            <span class="metric-value"><span id="ampbatmax">0.00</span><span class="unit">A</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Max Power:</span>
-                            <span class="metric-value"><span id="powerbatmax">0.00</span><span class="unit">W</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Status Baterai:</span>
-                            <span class="metric-value" id="batfullstate">---</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Energy Today:</span>
-                            <span class="metric-value"><span id="energyah">0</span><span class="unit">Ah</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Energy Today:</span>
-                            <span class="metric-value"><span id="energytoday">0.00</span><span class="unit">KWh</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Energy Yesterday:</span>
-                            <span class="metric-value"><span id="energyyesterday">0.00</span><span class="unit">KWh</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Energy This Month:</span>
-                            <span class="metric-value"><span id="energymonth">0.00</span><span class="unit">KWh</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Energy Total:</span>
-                            <span class="metric-value"><span id="energytotal">0.00</span><span class="unit">KWh</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Month Cost:</span>
-                            <span class="metric-value"><span class="unit">Rp </span><span id="monthcost">0.00</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Total Cost:</span>
-                            <span class="metric-value"><span class="unit">Rp </span><span id="totalcost">0.00</span></span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Temperature:</span>
-                            <span class="metric-value"><span id="tempbat-value">0.00</span><span class="unit" id="tempbat-unit">&#8451;</span></span>
-                        </div>
+                    <h3 class="card-title">Battery Information</h3>
+                    <div class="metric">
+                        <span class="metric-label">Voltage:</span>
+                        <span class="metric-value"><span id="voltagebat">0.00</span><span class="unit">V</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Current:</span>
+                        <span class="metric-value"><span id="currentbat">0.00</span><span class="unit">A</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Power:</span>
+                        <span class="metric-value"><span id="powerbat">0.00</span><span class="unit">W</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Max Current:</span>
+                        <span class="metric-value"><span id="ampbatmax">0.00</span><span class="unit">A</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Max Power:</span>
+                        <span class="metric-value"><span id="powerbatmax">0.00</span><span class="unit">W</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Status Baterai:</span>
+                        <span class="metric-value" id="batfullstate">---</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Energy Today:</span>
+                        <span class="metric-value"><span id="energyah">0</span><span class="unit">Ah</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Energy Today:</span>
+                        <span class="metric-value"><span id="energytoday">0.00</span><span class="unit">KWh</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Energy Yesterday:</span>
+                        <span class="metric-value"><span id="energyyesterday">0.00</span><span class="unit">KWh</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Energy This Month:</span>
+                        <span class="metric-value"><span id="energymonth">0.00</span><span class="unit">KWh</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Energy Total:</span>
+                        <span class="metric-value"><span id="energytotal">0.00</span><span class="unit">KWh</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Month Cost:</span>
+                        <span class="metric-value"><span class="unit">Rp </span><span id="monthcost">0.00</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Cost:</span>
+                        <span class="metric-value"><span class="unit">Rp </span><span id="totalcost">0.00</span></span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Temperature:</span>
+                        <span class="metric-value"><span id="tempbat-value">0.00</span><span class="unit" id="tempbat-unit">&#8451;</span></span>
                     </div>
                 </div>
             </section>
             <br>
             <section class="info-section">
-            <div class="icon-container">
-                <span class="icon-placeholder controller">&#128161;</span>
-            </div>
-            <div class="info-card load-info">
+                <div class="icon-container">
+                    <span class="icon-placeholder controller">&#128161;</span>
+                </div>
+                <div class="info-card load-info">
                     <h3 class="card-title">Extra Information</h3>
                     <div class="metric">
                         <span class="metric-label">Load Percentage:</span>
@@ -994,84 +1028,146 @@
                         <span class="metric-value"><span id="freeram">0.00</span><span class="unit">B</span></span>
                     </div>
                 </div>
-              </section>
+            </section>
             </div>
             
-            <!-- Tab Content: Tabel -->
-            <div id="tab-table" class="tab-content-main" style="display: none; width: 100%">
-                <div style="background-color: white; border: 2px solid var(--card-border-color); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
-                    <h3 style="text-align: center; margin-bottom: 20px; color: #333;">📊 Riwayat Energi Harian</h3>
-                    
-                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px;">
-                        <select id="yearSelect" class="tab-select">
-                            <option value="2025">2025</option>
-                            <option value="2026">2026</option>
-                            <option value="2027">2027</option>
-                            <option value="2028">2028</option>
-                            <option value="2029">2029</option>
-                            <option value="2030">2030</option>
-                            <option value="2031">2031</option>
-                            <option value="2032">2032</option>
-                            <option value="2033">2033</option>
-                            <option value="2034">2034</option>
-                            <option value="2035">2035</option>
-                            <option value="2036">2036</option>
-                            <option value="2037">2037</option>
-                            <option value="2038">2038</option>
-                            <option value="2039">2039</option>
-                            <option value="2040">2040</option>
-                            <option value="2041">2041</option>
-                            <option value="2042">2042</option>
-                            <option value="2043">2043</option>
-                            <option value="2044">2044</option>
-                            <option value="2045">2045</option>
-                            <option value="2046">2046</option>
-                        </select>
-                        <select id="monthSelect" class="tab-select">
-                            <option value="">-- Bulan --</option>
-                            <option value="01">Januari (01)</option>
-                            <option value="02">Februari (02)</option>
-                            <option value="03">Maret (03)</option>
-                            <option value="04">April (04)</option>
-                            <option value="05">Mei (05)</option>
-                            <option value="06">Juni (06)</option>
-                            <option value="07">Juli (07)</option>
-                            <option value="08">Agustus (08)</option>
-                            <option value="09">September (09)</option>
-                            <option value="10">Oktober (10)</option>
-                            <option value="11">November (11)</option>
-                            <option value="12">Desember (12)</option>
-                        </select>
-                        <button onclick="requestData()" class="tab-button" style="padding: 8px 16px;">Cek Riwayat</button>
+            <!-- Tab Content: Riwayat Energi -->
+            <div id="tab-energy" class="tab-content-main" style="display: none;">
+                <div class="dashboard-container">
+                    <!-- Bagian Riwayat Energi Harian -->
+                    <div class="data-section">
+                        <h2>📅 Riwayat Energi Harian</h2>
+                        <div class="control">
+                            <select id="yearSelectDaily">
+                                <option value="2025" selected>2025</option>
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                                <option value="2030">2030</option>
+                                <option value="2031">2031</option>
+                                <option value="2032">2032</option>
+                                <option value="2033">2033</option>
+                                <option value="2034">2034</option>
+                                <option value="2035">2035</option>
+                                <option value="2036">2036</option>
+                                <option value="2037">2037</option>
+                                <option value="2038">2038</option>
+                                <option value="2039">2039</option>
+                                <option value="2040">2040</option>
+                                <option value="2041">2041</option>
+                                <option value="2042">2042</option>
+                                <option value="2043">2043</option>
+                                <option value="2044">2044</option>
+                                <option value="2045">2045</option>
+                                <option value="2046">2046</option>
+                            </select>
+                            <select id="monthSelectDaily">
+                                <option value="">-- Pilih Bulan --</option>
+                                <option value="01">Januari (01)</option>
+                                <option value="02">Februari (02)</option>
+                                <option value="03">Maret (03)</option>
+                                <option value="04">April (04)</option>
+                                <option value="05">Mei (05)</option>
+                                <option value="06">Juni (06)</option>
+                                <option value="07">Juli (07)</option>
+                                <option value="08">Agustus (08)</option>
+                                <option value="09">September (09)</option>
+                                <option value="10">Oktober (10)</option>
+                                <option value="11">November (11)</option>
+                                <option value="12">Desember (12)</option>
+                            </select>
+                            <button class="daily-button" onclick="requestData('daily')">📊 Cek Data Harian</button>
+                        </div>
+                        <div class="status" id="dataStatusDaily"></div>
+                        
+                        <div class="view-toggle">
+                            <button class="daily" onclick="showEnergyView('daily', 'table')">📋 Lihat Daftar</button>
+                            <button class="daily" onclick="showEnergyView('daily', 'chart')">📈 Lihat Grafik</button>
+                        </div>
+
+                        <div class="table-chart-container">
+                            <div id="tableViewDaily" class="table-container">
+                                <table class="daily-table">
+                                    <thead><tr><th>Tanggal</th><th>Energi</th></tr></thead>
+                                    <tbody id="tableBodyDaily"></tbody>
+                                </table>
+                            </div>
+
+                            <div id="chartViewDaily" class="chart-container-mobile" style="display:none;">
+                                <canvas id="energyChartDaily"></canvas>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="status" id="dataStatus" style="text-align: center; min-height: 24px; font-weight: bold; margin: 12px 0;"></div>
+                    <!-- Bagian Riwayat Energi Bulanan -->
+                    <div class="data-section monthly-section">
+                        <h2>📊 Riwayat Energi Bulanan</h2>
+                        <div class="control">
+                            <select id="yearSelectMonthly">
+                                <option value="2025" selected>2025</option>
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                                <option value="2030">2030</option>
+                                <option value="2031">2031</option>
+                                <option value="2032">2032</option>
+                                <option value="2033">2033</option>
+                                <option value="2034">2034</option>
+                                <option value="2035">2035</option>
+                                <option value="2036">2036</option>
+                                <option value="2037">2037</option>
+                                <option value="2038">2038</option>
+                                <option value="2039">2039</option>
+                                <option value="2040">2040</option>
+                                <option value="2041">2041</option>
+                                <option value="2042">2042</option>
+                                <option value="2043">2043</option>
+                                <option value="2044">2044</option>
+                                <option value="2045">2045</option>
+                                <option value="2046">2046</option>
+                            </select>
+                            <button class="monthly-button" onclick="requestData('monthly')">📅 Cek Data Bulanan</button>
+                        </div>
+                        <div class="status" id="dataStatusMonthly"></div>
+                        
+                        <div class="view-toggle">
+                            <button class="monthly" onclick="showEnergyView('monthly', 'table')">📋 Lihat Daftar</button>
+                            <button class="monthly" onclick="showEnergyView('monthly', 'chart')">📈 Lihat Grafik</button>
+                        </div>
 
-                    <div style="text-align: center; margin: 12px 0; display: flex; justify-content: center; gap: 12px;">
-                        <button onclick="showView('table')" class="tab-button" style="margin: 0 6px;">Lihat Daftar</button>
-                        <button onclick="showView('chart')" class="tab-button" style="margin: 0 6px;">Lihat Grafik</button>
-                    </div>
+                        <div class="table-chart-container">
+                            <div id="tableViewMonthly" class="table-container">
+                                <table class="monthly-table">
+                                    <thead><tr><th>Bulan</th><th>Energi</th></tr></thead>
+                                    <tbody id="tableBodyMonthly"></tbody>
+                                </table>
+                            </div>
 
-                    <div id="tableView" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                            <thead>
-                                <tr>
-                                    <th style="background: #3498db; color: white; padding: 10px;">Tanggal</th>
-                                    <th style="background: #3498db; color: white; padding: 10px;">Energi (kWh)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableBody"></tbody>
-                        </table>
+                            <div id="chartViewMonthly" class="chart-container-mobile" style="display:none;">
+                                <canvas id="energyChartMonthly"></canvas>
+                            </div>
+                        </div>
                     </div>
-
-                    <div id="chartView" style="display:none; margin-top: 20px; min-height: 500px;">
-                        <canvas id="energyChart"></canvas>
-                    </div>
-                    
                 </div>
             </div>
 
-            <hr>
+            
+            <section class="section-info-extended" style="display: flex; justify-content: space-around; 
+              margin-top: 15px; background-color: white; border: 2px solid #007BFF; 
+              border-radius: 15px; padding: 15px 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); width: 100%;">
+              <div style="flex: 1; text-align: center; border-right: 1px solid #eee; padding: 0 5px;">
+                <div style="font-weight: bold; font-size: 14px; color: #333;">Sinyal WiFi:</div>
+                <div id="sinyalwifi" style="font-size: 16px; font-weight: bold; color: #2ecc71; margin-top: 4px;">---</div>
+              </div>
+            
+              <div style="flex: 1; text-align: center; padding: 0 5px;">
+                  <div style="font-weight: bold; font-size: 14px; color: #333;">Device IP:</div>
+                  <div id="device-ip-address" style="font-size: 16px; font-weight: bold; color: #3498db; margin-top: 4px;">---</div>
+              </div>
+            </section>
+
             <section class="section-info">
                 <font color='blue'><b>Teguh Sakura</b>&trade; </font><br>
                 <font color='blue'>&#9993;  <b>teguh.sakura@yahoo.com</b></font><br>
@@ -1100,12 +1196,9 @@ const installPrompt = document.getElementById('installPrompt');
 
 // Event listener for beforeinstallprompt
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
     e.preventDefault();
-    // Stash the event so it can be triggered later
     deferredPrompt = e;
     
-    // Show install prompt after 5 seconds
     setTimeout(() => {
         if (!isAppInstalled()) {
             showInstallPrompt();
@@ -1113,49 +1206,32 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }, 5000);
 });
 
-// Check if app is already installed
 function isAppInstalled() {
     return window.matchMedia('(display-mode: standalone)').matches || 
            window.navigator.standalone === true;
 }
 
-// Show install prompt
 function showInstallPrompt() {
     installPrompt.style.display = 'flex';
 }
 
-// Dismiss install prompt
 function dismissInstallPrompt() {
     installPrompt.style.display = 'none';
-    // Store dismissal in localStorage
     localStorage.setItem('installPromptDismissed', 'true');
 }
 
-// Install app
 function installApp() {
     if (deferredPrompt) {
-        // Show the install prompt
         deferredPrompt.prompt();
-        
-        // Wait for the user to respond to the prompt
         deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-            } else {
-                console.log('User dismissed the install prompt');
-            }
-            // Reset deferredPrompt variable
             deferredPrompt = null;
-            // Hide prompt
             installPrompt.style.display = 'none';
         });
     }
 }
 
-// Check if app was launched from home screen
 window.addEventListener('appinstalled', (evt) => {
     console.log('MPPT Monitoring was installed successfully');
-    // Hide prompt if shown
     installPrompt.style.display = 'none';
 });
 
@@ -1178,6 +1254,14 @@ let mqttClient = null;
 let isConnected = false;
 let currentClientName = '';
 let currentTopic = '';
+
+// ===== VARIABEL UNTUK TABEL ENERGI =====
+let currentDailyData = null;
+let currentMonthlyData = null;
+let dailyChart = null;
+let monthlyChart = null;
+let energyMqttClient = null;
+let currentResponseTopic = '';
 
 // ===== SERVICE WORKER REGISTRATION =====
 if ('serviceWorker' in navigator) {
@@ -1203,77 +1287,57 @@ function startMonitoring() {
         return;
     }
     
-    // Simpan nama klien
     currentClientName = clientName;
-    
-    // Buat topik berdasarkan format: mppt_techfine_samoto_amsan/nama_klien/alldata
     currentTopic = `mppt_techfine_samoto_amsan/${currentClientName}/alldata`;
     
-    // Update tampilan
-    const clientNameDisplay = document.getElementById('clientNameDisplay');
-    clientNameDisplay.textContent = currentClientName;
-
-    // Tambahkan tooltip jika nama sangat panjang
-    if (currentClientName.length > 30) {
-      clientNameDisplay.title = currentClientName;
-    }
-
-    // Sembunyikan modal, tampilkan konten utama
+    document.getElementById('clientNameDisplay').textContent = currentClientName;
     document.getElementById('clientModal').classList.remove('active');
     document.getElementById('mainContent').classList.add('active');
     
-    // Mulai koneksi MQTT
     connectMQTT();
-
-    // Inisialisasi MQTT untuk tabel
-    initMqttTableClient();
-
-    // Simpan di localStorage untuk sesi berikutnya
+    initEnergyMQTT();
+    
     localStorage.setItem('mppt_client_name', currentClientName);
 }
 
 function showConfirmation() {
-    // Tampilkan nama klien saat ini di modal konfirmasi
     document.getElementById('currentClientName').textContent = currentClientName || '-';
-    
-    // Tampilkan modal konfirmasi
     document.getElementById('confirmationModal').classList.add('active');
 }
 
 function hideConfirmation() {
-    // Sembunyikan modal konfirmasi
     document.getElementById('confirmationModal').classList.remove('active');
 }
 
 function confirmChangeClient() {
-    // Sembunyikan modal konfirmasi
     hideConfirmation();
     
-    // Putuskan koneksi MQTT jika sedang terhubung
     if (mqttClient) {
         mqttClient.end();
         mqttClient = null;
         isConnected = false;
     }
     
-    // Reset status
-    updateConnectionStatus('Disconnected', 'status-disconnected');
+    if (energyMqttClient) {
+        if (currentResponseTopic) {
+            energyMqttClient.unsubscribe(currentResponseTopic);
+        }
+        energyMqttClient.end();
+        energyMqttClient = null;
+    }
     
-    // Reset data di UI
+    updateConnectionStatus('Disconnected', 'status-disconnected');
     resetUI();
     
-    // Tampilkan modal input klien kembali
     document.getElementById('clientModal').classList.add('active');
     document.getElementById('mainContent').classList.remove('active');
     
-    // Kosongkan input dan fokus
     const clientNameInput = document.getElementById('clientNameInput');
     clientNameInput.value = '';
     clientNameInput.focus();
 }
 
 function resetUI() {
-    // Reset semua nilai di UI ke default
     const resetValues = {
         'voltagepv': '0.0',
         'currentpv': '0.0',
@@ -1296,10 +1360,11 @@ function resetUI() {
         'energytotal': '0.00',
         'monthcost': '0.00',
         'totalcost': '0.00',
-        'freeram': '0.00'
+        'freeram': '0.00',
+        'device-ip-address': '---', // Tetap di sini
+        'sinyalwifi': '---' // <-- BARIS TAMBAHAN    
     };
     
-    // Reset semua nilai
     Object.keys(resetValues).forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -1307,14 +1372,12 @@ function resetUI() {
         }
     });
     
-    // Reset error value khusus
     const errorElement = document.getElementById('errorvalue');
     if (errorElement) {
         errorElement.textContent = '0x00';
-        errorElement.style.color = '#4CAF50'; // Reset warna ke hijau
+        errorElement.style.color = '#4CAF50';
     }
 
-    // Reset status text
     const statusElements = ['chargestate', 'batfullstate'];
     statusElements.forEach(id => {
         const element = document.getElementById(id);
@@ -1324,28 +1387,21 @@ function resetUI() {
         }
     });
 
-    // Reset icon PV
     const pvIcon = document.getElementById('pv_icon');
     if (pvIcon) {
         pvIcon.textContent = '☀️';
         pvIcon.className = 'icon-placeholder solar-panel';
     }
     
-    // Reset arrow visibility
-    const pvArrow = document.getElementById('pv_arrow');
-    if (pvArrow) pvArrow.style.display = 'none';
-    
-    // Reset last update time
     document.getElementById('last-update').textContent = '--:--:--';
     
-    // Reset tempbat unit visibility
     const tempbatUnit = document.getElementById('tempbat-unit');
     if (tempbatUnit) {
         tempbatUnit.style.display = 'inline';
     }
 }
 
-// ===== FUNGSI MQTT =====
+// ===== FUNGSI MQTT UNTUK MAIN DASHBOARD =====
 function connectMQTT() {
     if (isConnected || !currentClientName) return;
     
@@ -1355,7 +1411,6 @@ function connectMQTT() {
     updateConnectionStatus('Connecting...', 'status-connecting');
     
     try {
-        // Buat client ID unik berdasarkan nama klien
         MQTT_CONFIG.options.clientId = `mppt_${currentClientName}_${Math.random().toString(16).substr(2, 8)}`;
         
         mqttClient = mqtt.connect(MQTT_CONFIG.url, MQTT_CONFIG.options);
@@ -1424,7 +1479,6 @@ function updateConnectionStatus(text, statusClass) {
     if (textElement) textElement.textContent = 'Server Status: ' + text;
 }
 
-// ===== PROSES DATA MQTT =====
 function processMQTTMessage(message) {
     try {
         const data = JSON.parse(message);
@@ -1442,7 +1496,6 @@ function updateLastUpdateTime() {
     document.getElementById('last-update').textContent = timeString;
 }
 
-// ===== UPDATE UI =====
 function updateElementText(id, text) {
     const element = document.getElementById(id);
     if (element) {
@@ -1450,17 +1503,12 @@ function updateElementText(id, text) {
     }
 }
 
-// Fungsi khusus untuk update error value agar jadi 0x
 function updateErrorValue(value) {
     const element = document.getElementById('errorvalue');
     if (element) {
-        // Perlakukan 'value' sebagai angka desimal yang merepresentasikan digit hex
-        // Contoh: 20 → tampilkan sebagai "0x20", bukan konversi 20 desimal ke hex
         const num = parseInt(value);
         const hexDisplay = '0x' + num.toString().padStart(2, '0').toUpperCase();
         element.textContent = hexDisplay;
-
-        // Warna: hijau jika 0, merah jika lainnya
         element.style.color = (num === 20) ? '#4CAF50' : '#f44336';
     }
 }
@@ -1514,28 +1562,6 @@ function updatePvIcon(voltageValue) {
     }
 }
 
-function updateArrowVisibility(pvCurrent) {
-    const pvArrow = document.getElementById('pv_arrow');
-    if (pvArrow) pvArrow.style.display = parseFloat(pvCurrent) > 0 ? 'flex' : 'none';
-}
-
-function openTab(evt, tabId) {
-    const parentInfoCard = evt.currentTarget.closest('.info-card');
-    let tabcontent = parentInfoCard.getElementsByClassName("tab-content");
-    for (let i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].classList.remove("active");
-    }
-
-    let tablinks = evt.currentTarget.parentNode.getElementsByClassName("tab");
-    for (let i = 0; i < tablinks.length; i++) {
-        tablinks[i].classList.remove("active");
-    }
-
-    document.getElementById(tabId).classList.add("active");
-    evt.currentTarget.classList.add("active");
-}
-
-// Fungsi utama untuk update semua data
 function updateUIWithData(data) {
     // Update data PV
     if (data.voltagepv !== undefined) {
@@ -1545,7 +1571,6 @@ function updateUIWithData(data) {
     
     if (data.currentpv !== undefined) {
         updateElementText('currentpv', data.currentpv.toFixed(2));
-        updateArrowVisibility(data.currentpv);
     }
     
     if (data.psh !== undefined) {
@@ -1605,6 +1630,17 @@ function updateUIWithData(data) {
         updateTempBat(data.tempbat);
     }
 
+    // Update IP Address
+    if (data.alamatip !== undefined) {
+        updateElementText('device-ip-address', data.alamatip);
+    }
+
+    // Update Sinyal WiFi (asumsi format JSON Anda: "sinyalwifi": -32.3)
+    if (data.sinyalwifi !== undefined) {
+       // Format sinyal wifi dengan menambahkan ' dB'
+       updateElementText('sinyalwifi', `${data.sinyalwifi} dB`);
+    }
+
     // Update status
     if (data.dcloadstate !== undefined) {
         updateStatusText('dcloadstate', data.dcloadstate, 'On', 'Off', 'on', 'off');
@@ -1647,6 +1683,366 @@ function updateUIWithData(data) {
     }
 }
 
+// ===== FUNGSI MQTT UNTUK TABEL ENERGI =====
+function initEnergyMQTT() {
+    if (energyMqttClient && energyMqttClient.connected) {
+        if (currentResponseTopic) {
+            energyMqttClient.unsubscribe(currentResponseTopic);
+        }
+        energyMqttClient.end();
+    }
+    
+    if (!currentClientName) return;
+    
+    const clientId = 'web_energy_' + Math.random().toString(16).substr(2, 8);
+    const baseTopic = `mppt_techfine_samoto_amsan/${currentClientName}`;
+    const requestTopic = `${baseTopic}/request`;
+    currentResponseTopic = `${baseTopic}/response`;
+    
+    energyMqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+        clientId: clientId,
+        username: 'emqx',
+        password: 'public'
+    });
+    
+    energyMqttClient.on('connect', () => {
+        console.log(`✅ Energy MQTT connected for client: ${currentClientName}`);
+        
+        energyMqttClient.subscribe(currentResponseTopic, (err) => {
+            if (!err) {
+                console.log(`Subscribed to ${currentResponseTopic}`);
+            }
+        });
+    });
+    
+    energyMqttClient.on('message', (topic, payload) => {
+        if (topic === currentResponseTopic) {
+            try {
+                const res = JSON.parse(payload.toString());
+                
+                if (res.type === 'daily') {
+                    processDailyResponse(res);
+                } else if (res.type === 'monthly') {
+                    processMonthlyResponse(res);
+                }
+            } catch (e) {
+                console.error('Error parsing response:', e);
+            }
+        }
+    });
+    
+    energyMqttClient.on('error', (err) => {
+        console.error('Energy MQTT error:', err);
+    });
+}
+
+function requestData(type) {
+    if (!energyMqttClient || !energyMqttClient.connected) {
+        alert('Tidak terhubung ke MQTT. Silakan periksa koneksi.');
+        return;
+    }
+    
+    if (!currentClientName) {
+        alert('Nama klien belum dipilih!');
+        return;
+    }
+    
+    const baseTopic = `mppt_techfine_samoto_amsan/${currentClientName}/request`;
+    let payload = {};
+    
+    if (type === 'daily') {
+        const year = document.getElementById('yearSelectDaily').value;
+        const month = document.getElementById('monthSelectDaily').value;
+        if (!month) {
+            alert('Pilih bulan terlebih dahulu!');
+            return;
+        }
+        payload = {
+            action: 'fetch',
+            type: 'daily',
+            year: year,
+            month: month
+        };
+        document.getElementById('dataStatusDaily').className = 'status loading';
+        document.getElementById('dataStatusDaily').textContent = '📤 Mengirim permintaan data harian...';
+    } else if (type === 'monthly') {
+        const year = document.getElementById('yearSelectMonthly').value;
+        payload = {
+            action: 'fetch',
+            type: 'monthly',
+            year: year
+        };
+        document.getElementById('dataStatusMonthly').className = 'status loading';
+        document.getElementById('dataStatusMonthly').textContent = '📤 Mengirim permintaan data bulanan...';
+    }
+    
+    energyMqttClient.publish(baseTopic, JSON.stringify(payload));
+}
+
+function processDailyResponse(res) {
+    currentDailyData = res;
+    const tableBody = document.getElementById('tableBodyDaily');
+    const statusEl = document.getElementById('dataStatusDaily');
+    
+    tableBody.innerHTML = '';
+    if (dailyChart) dailyChart.destroy();
+
+    if (res.found && res.data && res.data.length > 0) {
+        res.data.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${item.date}</td><td>${item.energy.toFixed(2)} kWh</td>`;
+            tableBody.appendChild(tr);
+        });
+
+        const total = res.total !== undefined ? res.total.toFixed(2) : '0.00';
+        const totalRow = document.createElement('tr');
+        totalRow.style.background = '#e8f4fc';
+        totalRow.style.fontWeight = 'bold';
+        totalRow.innerHTML = `
+          <td style="color:green;"><strong>TOTAL BULAN INI</strong></td>
+          <td style="color:green;">${total} kWh</td>
+        `;
+        tableBody.appendChild(totalRow);
+
+        statusEl.className = 'status success-daily';
+        statusEl.innerHTML = 
+          `✅ Data harian <span style="color:#27ae60;font-weight:bold;">${res.month}/${res.year}</span> ` +
+          `(<span style="color:#27ae60;font-weight:bold;">${res.data.length}</span> hari)<br>`;
+
+        renderDailyChart(res.data);
+    } else {
+        statusEl.className = 'status notfound';
+        statusEl.textContent = `📭 Tidak ada data harian untuk ${res.month}/${res.year}`;
+        showEnergyView('daily', 'table');
+    }
+}
+
+function processMonthlyResponse(res) {
+    currentMonthlyData = res;
+    const tableBody = document.getElementById('tableBodyMonthly');
+    const statusEl = document.getElementById('dataStatusMonthly');
+    
+    tableBody.innerHTML = '';
+    if (monthlyChart) monthlyChart.destroy();
+
+    if (res.found && res.data && res.data.length > 0) {
+        res.data.sort((a, b) => {
+            const monthA = parseInt(a.date.split('-')[0]);
+            const monthB = parseInt(b.date.split('-')[0]);
+            return monthA - monthB;
+        });
+
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                           'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        res.data.forEach(item => {
+            const monthNum = parseInt(item.date.split('-')[0]);
+            const monthName = monthNames[monthNum - 1] || `Bulan ${monthNum}`;
+            const year = item.date.split('-')[1];
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${monthName} ${year}</td>
+                <td>${item.energy.toFixed(2)} kWh</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+        const total = res.total !== undefined ? res.total.toFixed(2) : '0.00';
+        const totalRow = document.createElement('tr');
+        totalRow.style.background = '#e8f6ef';
+        totalRow.style.fontWeight = 'bold';
+        totalRow.innerHTML = `
+          <td style="color:blue;"><strong>TOTAL TAHUN INI</strong></td>
+          <td style="color:blue;">${total} kWh</td>
+        `;
+        tableBody.appendChild(totalRow);
+
+        statusEl.className = 'status success-monthly';
+        statusEl.innerHTML = 
+          `✅ Data bulanan <span style="color:#2980b9;font-weight:bold;">${res.year}</span> ` +
+          `(<span style="color:#2980b9;font-weight:bold;">${res.data.length}</span> bulan)<br>`;
+
+        renderMonthlyChart(res.data);
+    } else {
+        statusEl.className = 'status notfound';
+        statusEl.textContent = `📭 Tidak ada data bulanan untuk tahun ${res.year}`;
+        showEnergyView('monthly', 'table');
+    }
+}
+
+function renderDailyChart(data) {
+    const canvas = document.getElementById('energyChartDaily');
+    const ctx = canvas.getContext('2d');
+
+// --- START: Hitung Tinggi Dinamis untuk Horizontal Bar Chart ---
+    // Atur tinggi setiap bar (termasuk jarak)
+    const barHeight = 25; 
+    // Tambahkan padding untuk sumbu X di bagian bawah
+    const axisPadding = 80; 
+    // Hitung tinggi yang dibutuhkan (Min 250px)
+    const requiredHeight = (data.length * barHeight) + axisPadding;
+    
+    // Terapkan tinggi ke kanvas dan container-nya
+    canvas.style.height = `${Math.max(250, requiredHeight)}px`;
+    document.getElementById('chartViewDaily').style.height = `${Math.max(250, requiredHeight)}px`;
+    // --- END: Hitung Tinggi Dinamis ---
+
+    const labels = data.map(d => d.date);
+    const values = data.map(d => d.energy);
+
+    if (dailyChart) dailyChart.destroy();
+    
+    dailyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Energi Harian (kWh)',
+                data: values,
+                backgroundColor: '#3498db',
+                borderColor: '#2980b9',
+                borderWidth: 1,
+                borderRadius: 5,
+                hoverBackgroundColor: '#2980b9'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: { 
+                        display: true, 
+                        text: 'kWh',
+                        color: '#2980b9'
+                    }
+                },
+                y: {
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 10
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderMonthlyChart(data) {
+    const canvas = document.getElementById('energyChartMonthly');
+    const ctx = canvas.getContext('2d');
+
+    data.sort((a, b) => {
+        const monthA = parseInt(a.date.split('-')[0]);
+        const monthB = parseInt(b.date.split('-')[0]);
+        return monthA - monthB;
+    });
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 
+                       'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    
+    const labels = data.map(item => {
+        const monthNum = parseInt(item.date.split('-')[0]);
+        return monthNames[monthNum - 1] || `Bulan ${monthNum}`;
+    });
+    
+    const values = data.map(d => d.energy);
+
+    if (monthlyChart) monthlyChart.destroy();
+
+// --- START: Hitung Tinggi Dinamis untuk Horizontal Bar Chart ---
+    const barHeight = 35; // Set lebih besar karena data biasanya max 12
+    const axisPadding = 80;
+    const requiredHeight = (labels.length * barHeight) + axisPadding;
+    
+    // Terapkan tinggi ke kanvas dan container-nya
+    canvas.style.height = `${Math.max(250, requiredHeight)}px`;
+    document.getElementById('chartViewMonthly').style.height = `${Math.max(250, requiredHeight)}px`;
+    // --- END: Hitung Tinggi Dinamis ---
+
+    monthlyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Energi Bulanan (kWh)',
+                data: values,
+                backgroundColor: '#2ecc71',
+                borderColor: '#27ae60',
+                borderWidth: 2,
+                borderRadius: 5,
+                hoverBackgroundColor: '#27ae60'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: { 
+                        display: true, 
+                        text: 'kWh',
+                        color: '#27ae60'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function showEnergyView(type, view) {
+    if (type === 'daily') {
+        if (view === 'table') {
+            document.getElementById('tableViewDaily').style.display = 'block';
+            document.getElementById('chartViewDaily').style.display = 'none';
+        } else {
+            document.getElementById('tableViewDaily').style.display = 'none';
+            document.getElementById('chartViewDaily').style.display = 'block';
+            if (dailyChart) {
+                dailyChart.resize();
+            }
+        }
+    } else if (type === 'monthly') {
+        if (view === 'table') {
+            document.getElementById('tableViewMonthly').style.display = 'block';
+            document.getElementById('chartViewMonthly').style.display = 'none';
+        } else {
+            document.getElementById('tableViewMonthly').style.display = 'none';
+            document.getElementById('chartViewMonthly').style.display = 'block';
+            if (monthlyChart) {
+                monthlyChart.resize();
+            }
+        }
+    }
+}
+
+// ===== TAB SWITCHING =====
+document.querySelectorAll('.tab-button[data-tab]').forEach(button => {
+    button.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        // Update active button
+        document.querySelectorAll('.tab-button[data-tab]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        // Show/hide content
+        document.getElementById('tab-main').style.display = tabId === 'main' ? 'block' : 'none';
+        document.getElementById('tab-energy').style.display = tabId === 'energy' ? 'block' : 'none';
+    });
+});
+
 // ===== INISIALISASI =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('MPPT Monitoring System initialized');
@@ -1681,258 +2077,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== FIX TOUCH SCROLLING JAVASCRIPT =====
+    // Mobile touch optimization
+    document.body.style.overflow = 'auto';
+    document.body.style.webkitOverflowScrolling = 'touch';
     
-    // REMOVE OR COMMENT THIS BLOCKING CODE:
-    // document.body.addEventListener('touchmove', function(e) {
-    //     if (e.scale !== 1) { e.preventDefault(); }
-    // }, { passive: false });
-    
-    // ADD THIS INSTEAD:
-    
-    // Fix untuk iOS Safari scrolling
-    document.addEventListener('DOMContentLoaded', function() {
-        // Enable scrolling on all elements
-        document.body.style.overflow = 'auto';
-        document.body.style.webkitOverflowScrolling = 'touch';
-        
-        // Fix untuk modal scrolling
-        const modals = document.querySelectorAll('.modal, .confirmation-modal');
-        modals.forEach(modal => {
-            modal.style.overflowY = 'auto';
-            modal.style.webkitOverflowScrolling = 'touch';
-        });
-        
-        // Better touch handling untuk buttons
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('touchstart', function(e) {
-                // Add active state
-                this.style.opacity = '0.8';
-            }, { passive: true });
-            
-            button.addEventListener('touchend', function() {
-                this.style.opacity = '1';
-            }, { passive: true });
-        });
-        
-        // Fix untuk input focus di iOS
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('focus', function() {
-                // Scroll ke input yang sedang difokuskan
-                setTimeout(() => {
-                    this.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 300);
-            });
-        });
+    const modals = document.querySelectorAll('.modal, .confirmation-modal');
+    modals.forEach(modal => {
+        modal.style.overflowY = 'auto';
+        modal.style.webkitOverflowScrolling = 'touch';
     });
     
-    // Better scroll handling
-    let isScrolling = false;
-    let scrollTimeout;
-    
-    window.addEventListener('scroll', function() {
-        isScrolling = true;
+    // Better touch handling untuk buttons
+    document.querySelectorAll('button').forEach(button => {
+        button.addEventListener('touchstart', function(e) {
+            this.style.opacity = '0.8';
+        }, { passive: true });
         
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(function() {
-            isScrolling = false;
-        }, 66); // 60fps
-    }, { passive: true });
+        button.addEventListener('touchend', function() {
+            this.style.opacity = '1';
+        }, { passive: true });
+    });
     
-    // Touch event untuk better scrolling
-    let startY;
-    
-    document.addEventListener('touchstart', function(e) {
-        startY = e.touches[0].clientY;
-    }, { passive: true });
-    
-    document.addEventListener('touchmove', function(e) {
-        if (!isScrolling) {
-            const currentY = e.touches[0].clientY;
-            const diff = startY - currentY;
-            
-            // Jika perbedaan cukup besar, anggap ini scroll
-            if (Math.abs(diff) > 10) {
-                isScrolling = true;
-            }
-        }
-    }, { passive: true });
+    // Fix untuk input focus di iOS
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('focus', function() {
+            setTimeout(() => {
+                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
+    });
     
     // Fix untuk PWA standalone mode
     if (window.matchMedia('(display-mode: standalone)').matches) {
-        // Additional fixes untuk installed PWA
         document.body.style.height = '100vh';
         document.body.style.overflowY = 'auto';
-        
-        // Force reflow untuk fix rendering
-        setTimeout(() => {
-            document.body.style.display = 'none';
-            document.body.offsetHeight; // Trigger reflow
-            document.body.style.display = 'block';
-        }, 100);
     }
     
-});
-
-// ===== FUNGSI UNTUK DEBUG =====
-window.getClientInfo = function() {
-    return {
-        clientName: currentClientName,
-        topic: currentTopic,
-        isConnected: isConnected,
-        mqttClient: mqttClient ? 'Connected' : 'Disconnected'
-    };
-};
-
-// ===== TAB SWITCHING =====
-document.querySelectorAll('.tab-button[data-tab]').forEach(button => {
-    button.addEventListener('click', function() {
-        const tabId = this.getAttribute('data-tab');
-        // Update active button
-        document.querySelectorAll('.tab-button[data-tab]').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        // Show/hide content
-        document.getElementById('tab-main').style.display = tabId === 'main' ? 'block' : 'none';
-        document.getElementById('tab-table').style.display = tabId === 'table' ? 'block' : 'none';
+    // Force hide horizontal scroll pada modal saat pertama kali
+    document.body.style.overflowX = 'hidden';
+    window.addEventListener('resize', function() {
+        document.body.style.overflowX = 'hidden';
     });
 });
-
-// ===== TABEL & GRAFIK LOGIC =====
-let currentData = null;
-let energyChart = null;
-
-// MQTT Client untuk tabel
-let mqttClientTable = null;
-
-function initMqttTableClient() {
-    if (mqttClientTable) {
-        mqttClientTable.end(); // Putuskan koneksi lama jika ada
-    }
-
-    // Pastikan currentClientName tersedia
-    if (!currentClientName) {
-        console.warn('currentClientName not set, cannot init table MQTT client');
-        return;
-    }
-
-    const clientId = `web_table_${currentClientName}_${Math.random().toString(16).substr(2, 8)}`;
-    const responseTopic = `mppt_techfine_samoto_amsan/${currentClientName}/response`;
-
-    mqttClientTable = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
-        clientId: clientId,
-        username: 'emqx',
-        password: 'public',
-        clean: true,
-        reconnectPeriod: 3000
-    });
-
-    mqttClientTable.on('connect', () => {
-        console.log('✅ Tabel MQTT connected, subscribe to:', responseTopic);
-        mqttClientTable.subscribe(responseTopic);
-    });
-
-    mqttClientTable.on('message', (topic, payload) => {
-        if (topic === responseTopic) {
-            try {
-                const res = JSON.parse(payload.toString());
-                document.getElementById('tableBody').innerHTML = '';
-                if (energyChart) energyChart.destroy();
-
-                if (res.found && res.data && res.data.length > 0) {
-                    res.data.forEach(item => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `<td style="padding: 8px; text-align: center; border-bottom: 1px solid #eee;">${item.date}</td><td style="padding: 8px; text-align: center; border-bottom: 1px solid #eee;">${item.energy.toFixed(2)}</td>`;
-                        document.getElementById('tableBody').appendChild(tr);
-                    });
-
-                    const total = res.total !== undefined ? res.total.toFixed(2) : '0.00';
-                    document.getElementById('dataStatus').innerHTML = 
-                      `✅ Data <span style="color:#2980b9;font-weight:bold;">${res.month}/${res.year}</span>` +
-                      `(<span style="color:#2980b9;font-weight:bold;">${res.data.length}</span> hari)<br>` +
-                      `🔋 Total energi: <span style="color:#2980b9;font-weight:bold;">${total} kWh</span>`;
-                    
-                    renderEnergyChart(res.data);
-                } else {
-                    document.getElementById('dataStatus').innerHTML = 
-                      `📭 Tidak ada data untuk <span style="color:#2980b9;font-weight:bold;">${res.month}/${res.year}</span>`;
-                    showView('table');
-                }
-            } catch (e) {
-                console.error(e);
-                document.getElementById('dataStatus').textContent = '❌ Gagal parse data';
-            }
-        }
-    });
-
-    mqttClientTable.on('error', (err) => {
-        console.error('Tabel MQTT error:', err);
-    });
-}
-
-function renderEnergyChart(data) {
-    const canvas = document.getElementById('energyChart');
-    const ctx = document.getElementById('energyChart').getContext('2d');
-
-    // Reset ukuran canvas
-//    canvas.width = 400;
-//    canvas.height = 800;
-
-    // Hancurkan chart lama
-    if (energyChart) {
-        energyChart.destroy();
-    }
-
-    const labels = data.map(d => d.date);
-    const values = data.map(d => d.energy);
-    energyChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Energi Harian (kWh)',
-                data: values,
-                backgroundColor: '#3498db',
-                borderColor: '#2980b9',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { x: { beginAtZero: true, title: { display: true, text: 'kWh' } } },
-            plugins: { legend: { display: false }, tooltip: { mode: 'index', mode: 'nearest', intersect: true, callbacks: {title: function(tooltipItems) {return tooltipItems[0].label;},label: function(context) {return `Energi: ${context.parsed.x.toFixed(2)} kWh`;} } } } }
-    });
-}
-
-function showView(view) {
-    document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
-    document.getElementById('chartView').style.display = view === 'chart' ? 'block' : 'none';
-    if (view === 'chart' && energyChart) energyChart.resize();
-}
-
-function requestData() {
-    if (!currentClientName) {
-        alert('Nama klien belum dipilih!');
-        return;
-    }
-    const year = document.getElementById('yearSelect').value;
-    const month = document.getElementById('monthSelect').value;
-    if (!month) {
-        alert('Pilih bulan terlebih dahulu!');
-        return;
-    }
-
-    // Pastikan client tabel aktif
-    if (!mqttClientTable || !mqttClientTable.connected) {
-        initMqttTableClient();
-    }
-
-    const requestTopic = `mppt_techfine_samoto_amsan/${currentClientName}/request`;
-    document.getElementById('dataStatus').textContent = '📤 Mengirim permintaan...';
-    mqttClientTable.publish(requestTopic, JSON.stringify({ action: 'fetch', year: year, month: month }));
-}
 </script>
 </body>
 </html>
-
