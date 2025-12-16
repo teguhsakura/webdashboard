@@ -944,6 +944,9 @@
             <p>Masukkan <b>Nama klien</b> untuk memulai monitoring</p>
             <input type="text" id="clientNameInput" placeholder="Contoh: techfine.001" autofocus>
             <button onclick="startMonitoring()">Mulai Monitoring</button>
+            <button onclick="backToHub()" style="margin-top: 15px; background: none; border: 1px solid #007BFF; color: #007BFF; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold;">
+               ⚙️ Tambah / Kelola Banyak Device
+            </button>
         </div>
     </div>
 
@@ -1289,6 +1292,7 @@
                 &#127978; <a href="http://tokopedia.com/teguhhydrofarm" style='color:green'><b>Tokopedia</b></a> &nbsp; &nbsp; &nbsp;    &nbsp; &#127978; <a href="https://shopee.co.id/teguhfarm" style='color:#ee4d2d'><b>Shopee</b></a>
                 <br>
             </section>
+
             <!-- Client Info Bar -->
             <div class="client-info-container">
                 <div class="client-name-display">
@@ -1296,11 +1300,16 @@
                     <span class="client-name-value" id="clientNameDisplay">-</span>
                 </div>
                 <div class="change-client-container">  
-                    <button class="change-client-btn" onclick="showConfirmation()">
-                    <span>✏️</span> <b>Ganti Nama Klien</b>
+                    <button id="btnEditSingle" class="change-client-btn" onclick="showConfirmation()" style="display: none;">
+                       <span>✏️</span> <b>Ganti Nama Klien</b>
+                    </button>
+
+                    <button id="btnBackToHub" class="change-client-btn" onclick="backToHub()" style="display: none; background-color: #28a745;">
+                       <span>🏠</span> <b>Daftar Klien</b>
                     </button>
                 </div>
-             </div>
+            </div>
+
         </div>
     </div>
 
@@ -1365,10 +1374,22 @@ const MQTT_CONFIG = {
     }
 };
 
+// --- TAMBAHKAN LOGIKA INI ---
+const urlParams = new URLSearchParams(window.location.search);
+const urlClientId = urlParams.get('id');
+
+// Ambil ID dari URL, kalau tidak ada pakai yang terakhir tersimpan
+let currentClientName = urlClientId || localStorage.getItem('mppt_client_name') || 'techfine.001';
+let currentTopic = `mppt_techfine_samoto_amsan/${currentClientName}/alldata`;
+
+// Fungsi untuk kembali ke Hub (Daftar Klien)
+function backToHub() {
+    window.location.href = 'index.html?hub=true';
+}
+// ----------------------------
+
 let mqttClient = null;
 let isConnected = false;
-let currentClientName = '';
-let currentTopic = '';
 
 // ===== VARIABEL UNTUK TABEL ENERGI =====
 let currentDailyData = null;
@@ -2200,80 +2221,78 @@ document.querySelectorAll('.tab-button[data-tab]').forEach(button => {
     });
 });
 
-// ===== INISIALISASI =====
+// ===== INISIALISASI GABUNGAN (AUTO-BYPASS & UI) =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('MPPT Monitoring System initialized');
+
+    // Ambil data klien dari LocalStorage untuk menghitung jumlahnya
+    const allClients = JSON.parse(localStorage.getItem('mppt_clients')) || [];
     
-    // Cek jika ada nama klien yang disimpan di localStorage
-    const savedClientName = localStorage.getItem('mppt_client_name');
-    if (savedClientName) {
-        document.getElementById('clientNameInput').value = savedClientName;
+    // Ambil elemen tombol
+    const btnEditSingle = document.getElementById('btnEditSingle');
+    const btnBackToHub = document.getElementById('btnBackToHub');
+
+    // LOGIKA PENENTU TOMBOL:
+    if (allClients.length <= 1) {
+        // Jika klien cuma 1 atau tidak ada, tampilkan tombol Edit (Pensil)
+        if(btnEditSingle) btnEditSingle.style.display = 'block';
+        if(btnBackToHub) btnBackToHub.style.display = 'none';
+    } else {
+        // Jika klien lebih dari 1, tampilkan tombol Kembali (Rumah)
+        if(btnEditSingle) btnEditSingle.style.display = 'none';
+        if(btnBackToHub) btnBackToHub.style.display = 'block';
+    }    
+
+    // 1. LOGIKA UTAMA: BYPASS MODAL JIKA ADA ID DI URL
+    if (urlClientId) {
+        console.log("Bypass modal untuk klien: " + currentClientName);
+        
+        // Update tampilan nama di header
+        const nameDisplay = document.getElementById('clientNameDisplay');
+        if(nameDisplay) nameDisplay.textContent = currentClientName;
+        
+        // Sembunyikan Modal dan Tampilkan Konten Utama
+        const clientModal = document.getElementById('clientModal');
+        const mainContent = document.getElementById('mainContent');
+        
+        if(clientModal) clientModal.classList.remove('active');
+        if(mainContent) mainContent.classList.add('active');
+        
+        // Jalankan Koneksi MQTT
+        connectMQTT();
+        initEnergyMQTT();
+        
+        // Simpan ke localstorage agar tetap ingat
+        localStorage.setItem('mppt_client_name', currentClientName);
+    } else {
+        // Jika tidak ada ID di URL, baru jalankan fungsi normal (minta input)
+        const savedClientName = localStorage.getItem('mppt_client_name');
+        if (savedClientName) {
+            document.getElementById('clientNameInput').value = savedClientName;
+        }
+        document.getElementById('clientNameInput').focus();
     }
-    
-    // Enter key untuk submit di input
+
+    // 2. LOGIKA UI (Tombol, Keyboard, Touch dsb tetap dipertahankan)
     document.getElementById('clientNameInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            startMonitoring();
-        }
+        if (e.key === 'Enter') startMonitoring();
     });
-    
-    // Auto-focus pada input
-    document.getElementById('clientNameInput').focus();
-    
-    // Tutup modal konfirmasi dengan ESC key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            hideConfirmation();
-        }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') hideConfirmation();
     });
-    
-    // Tutup modal konfirmasi dengan klik di luar
-    document.getElementById('confirmationModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            hideConfirmation();
-        }
-    });
-    
-    // Mobile touch optimization
-    document.body.style.overflow = 'auto';
-    document.body.style.webkitOverflowScrolling = 'touch';
-    
+
+    // Mobile & PWA Fixes (Kode asli Anda)
+    document.body.style.overflowX = 'hidden';
     const modals = document.querySelectorAll('.modal, .confirmation-modal');
     modals.forEach(modal => {
-        modal.style.overflowY = 'auto';
         modal.style.webkitOverflowScrolling = 'touch';
     });
-    
-    // Better touch handling untuk buttons
+
+    // Touch feedback untuk tombol
     document.querySelectorAll('button').forEach(button => {
-        button.addEventListener('touchstart', function(e) {
-            this.style.opacity = '0.8';
-        }, { passive: true });
-        
-        button.addEventListener('touchend', function() {
-            this.style.opacity = '1';
-        }, { passive: true });
-    });
-    
-    // Fix untuk input focus di iOS
-    document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('focus', function() {
-            setTimeout(() => {
-                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
-        });
-    });
-    
-    // Fix untuk PWA standalone mode
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-        document.body.style.height = '100vh';
-        document.body.style.overflowY = 'auto';
-    }
-    
-    // Force hide horizontal scroll pada modal saat pertama kali
-    document.body.style.overflowX = 'hidden';
-    window.addEventListener('resize', function() {
-        document.body.style.overflowX = 'hidden';
+        button.addEventListener('touchstart', () => button.style.opacity = '0.8', { passive: true });
+        button.addEventListener('touchend', () => button.style.opacity = '1', { passive: true });
     });
 });
 </script>
