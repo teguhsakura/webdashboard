@@ -353,16 +353,25 @@ window.addEventListener('appinstalled', (evt) => {
 });
 
 // ===== KONFIGURASI GLOBAL =====
-let clients = JSON.parse(localStorage.getItem('mppt_clients')) || [];
+//let clients = JSON.parse(localStorage.getItem('mppt_clients')) || [];
         
 // --- TAMBAHKAN KODE BARU DI SINI (LOGIKA BYPASS) ---
+//const urlParams = new URLSearchParams(window.location.search);
+//const forceHub = urlParams.get('hub'); 
+
+// Ambil data klien dari storage
+let clients = JSON.parse(localStorage.getItem('mppt_clients')) || [];
+
+// Logika Bypass: HANYA pindah otomatis jika Benar-benar cuma ada 1 klien 
+// dan user tidak sedang memaksa melihat daftar (hub=true)
 const urlParams = new URLSearchParams(window.location.search);
 const forceHub = urlParams.get('hub'); 
 
-// Jika cuma ada 1 klien, langsung lempar ke dashboard
 if (clients.length === 1 && forceHub !== 'true') {
      window.location.href = `dashboard.html?id=${clients[0]}`;
 }
+
+// Pastikan fungsi render grid dijalankan setelah pengecekan di atas
 // --------------------------------------------------
 
 // Broker sesuai dengan dashboard.html Anda
