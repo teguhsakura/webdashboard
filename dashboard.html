@@ -229,7 +229,45 @@
         .success { color: #27ae60; background: #e8f6ef; }
         .success-daily { color: #2980b9; background: #e8f4fc; border-left: 4px solid #3498db;}
         .success-monthly { color: #27ae60; background: #e8f6ef; border-left: 4px solid #3ADB34;}
-        
+
+        /* Animasi Panah Bergerak */
+        .arrow-flow-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 5px;
+            gap: 15px;
+        }
+
+        .arrow-flow-container.show-flow {
+            display: flex !important;
+        }
+
+        /* Style untuk setiap panah kecil */
+        .arrow-mini {
+            font-size: 1.2em;
+            color: #4CAF50;
+            line-height: 1;
+            opacity: 0;
+            animation: flowSequence 1.5s infinite;
+        }
+
+        /* Memberikan delay pada masing-masing panah agar terlihat mengalir */
+        .arrow-mini:nth-child(1) { animation-delay: 0.0s; }
+        .arrow-mini:nth-child(2) { animation-delay: 0.2s; }
+        .arrow-mini:nth-child(3) { animation-delay: 0.4s; }
+        .arrow-mini:nth-child(4) { animation-delay: 0.6s; }
+        .arrow-mini:nth-child(5) { animation-delay: 0.8s; }
+        .arrow-mini:nth-child(6) { animation-delay: 1.0s; }
+        .arrow-mini:nth-child(7) { animation-delay: 1.2s; }
+
+        @keyframes flowSequence {
+            0% { opacity: 0; transform: translateY(-10px); }
+            20% { opacity: 1; transform: translateY(0px); }
+            80% { opacity: 1; transform: translateY(0px); }
+            100% { opacity: 0; transform: translateY(10px); }
+        }
+
         /* Tabel Style untuk Mobile */
         .daily-table, .monthly-table {
             width: 100%;
@@ -548,9 +586,8 @@
         }
         .icon-placeholder.solar-panel { color: #f9a825; }
         .icon-placeholder.moon-icon { color: #a0aec0; }
-        .icon-placeholder.controller { color: #546e7a; }
         .icon-placeholder.battery { color: #4caf50; }
-        .icon-placeholder.load { font-size: 1.8em; margin-top: 5px; color: #ffeb3b; }
+        .icon-placeholder.energi { color: #1976d2; }
 
         .info-card {
             flex-grow: 1;
@@ -598,10 +635,21 @@
             margin-left: 10px;
             word-break: break-word;
         }
+
         .unit {
             font-size: 0.9em;
             color: #555;
             margin-left: 4px;
+        }
+
+        .cost-highlight {
+            color: #2ecc71 !important; /* Warna Hijau */
+            font-weight: bold;
+        }
+
+        /* Memastikan unit Rp juga berwarna hijau jika di dalam cost-highlight */
+        .cost-highlight .unit {
+            color: #2ecc71;
         }
 
         .no-sensor {
@@ -624,6 +672,16 @@
 
         .battery-not-full-status {
             color: #ff9800;
+        }
+
+        .on {
+            color: #4CAF50; /* Warna Hijau */
+            font-weight: bold;
+        }
+
+        .off {
+            color: #f44336; /* Warna Merah */
+            font-weight: bold;
         }
 
         /* Client Info Container */
@@ -825,6 +883,42 @@
                 width: 95%;
             }
         }
+
+        .main-layout-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Layout Desktop: 2 Kolom */
+        @media screen and (min-width: 768px) {
+            .main-layout-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr; /* Membagi dua kolom sama besar */
+                gap: 20px;
+                width: 100%;
+            }
+
+            /* Mengatur Posisi Spesifik */
+            .pv-section { grid-area: 1 / 1; }      /* Baris 1, Kolom 1 */
+            .energi-section { grid-area: 1 / 2; }  /* Baris 1, Kolom 2 */
+            .battery-section { grid-area: 2 / 1; } /* Baris 2, Kolom 1 */
+            .extra-section { grid-area: 2 / 2; }   /* Baris 2, Kolom 2 */
+
+            /* Memastikan tidak ada margin bottom manual yang merusak grid */
+            .info-section {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        /* Penyesuaian agar kartu tetap rapi */
+        .info-section {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            width: 100%;
+        }
+
     </style>
 </head>
 <body>
@@ -891,9 +985,19 @@
 
             <!-- Tab Content: Main -->
             <div id="tab-main" class="tab-content-main" style="display: block;">
-            <section class="info-section">
+            <div class="main-layout-grid">
+              <section class="info-section pv-section">
                 <div class="icon-container">
                     <span class="icon-placeholder solar-panel" id="pv_icon">☀️</span>
+                    <div id="charging-flow" class="arrow-flow-container">
+                        <div class="arrow-mini">▼</div>
+                        <div class="arrow-mini">▼</div>
+                        <div class="arrow-mini">▼</div>
+                        <div class="arrow-mini">▼</div>
+                        <div class="arrow-mini">▼</div>
+                        <div class="arrow-mini">▼</div>
+                        <div class="arrow-mini">▼</div>
+                    </div>
                 </div>
                 <div class="info-card pv-info">
                     <h3 class="card-title">PV Information</h3>
@@ -922,9 +1026,9 @@
                         <span class="metric-value"><span id="tempheatsink">0.00</span><span class="unit">&#8451;</span></span>
                     </div>
                 </div>
-            </section>
-            <br>
-            <section class="info-section">
+              </section>
+
+              <section class="info-section battery-section">
                 <div class="icon-container">
                     <span class="icon-placeholder battery">&#128267;</span>
                 </div>
@@ -955,6 +1059,19 @@
                         <span class="metric-value" id="batfullstate">---</span>
                     </div>
                     <div class="metric">
+                        <span class="metric-label">Temperature:</span>
+                        <span class="metric-value"><span id="tempbat-value">0.00</span><span class="unit" id="tempbat-unit">&#8451;</span></span>
+                    </div>
+                </div>
+              </section>
+
+              <section class="info-section energi-section">
+                <div class="icon-container">
+                    <span class="icon-placeholder energi">&#9889;</span>
+                </div>
+                <div class="info-card energi-info">
+                    <h3 class="card-title">Energy Information</h3>
+                    <div class="metric">
                         <span class="metric-label">Energy Today:</span>
                         <span class="metric-value"><span id="energyah">0</span><span class="unit">Ah</span></span>
                     </div>
@@ -974,24 +1091,23 @@
                         <span class="metric-label">Energy Total:</span>
                         <span class="metric-value"><span id="energytotal">0.00</span><span class="unit">KWh</span></span>
                     </div>
+
                     <div class="metric">
                         <span class="metric-label">Month Cost:</span>
-                        <span class="metric-value"><span class="unit">Rp </span><span id="monthcost">0.00</span></span>
+                        <span class="metric-value cost-highlight">
+                        <span class="unit">Rp </span><span id="monthcost">0.00</span></span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Total Cost:</span>
-                        <span class="metric-value"><span class="unit">Rp </span><span id="totalcost">0.00</span></span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Temperature:</span>
-                        <span class="metric-value"><span id="tempbat-value">0.00</span><span class="unit" id="tempbat-unit">&#8451;</span></span>
+                        <span class="metric-value cost-highlight">
+                        <span class="unit">Rp </span><span id="totalcost">0.00</span></span>
                     </div>
                 </div>
-            </section>
-            <br>
-            <section class="info-section">
+              </section>
+
+              <section class="info-section extra-section">
                 <div class="icon-container">
-                    <span class="icon-placeholder controller">&#128161;</span>
+                    <span class="icon-placeholder controller">⚙️</span>
                 </div>
                 <div class="info-card load-info">
                     <h3 class="card-title">Extra Information</h3>
@@ -1026,7 +1142,8 @@
                         <span class="metric-value"><span id="freeram">0.00</span><span class="unit">B</span></span>
                     </div>
                 </div>
-            </section>
+              </section>
+            </div>
             </div>
             
             <!-- Tab Content: Riwayat Energi -->
@@ -1514,11 +1631,13 @@ function updateErrorValue(value) {
 function updateStatusText(id, value, stateOn, stateOff, classOn, classOff) {
     const element = document.getElementById(id);
     if (element) {
-        const val = parseInt(value);
-        if (val === 1) {
+        const isOn = (value === true || value === 1 || value === "1" || value === "true");
+        const isOff = (value === false || value === 0 || value === "0" || value === "false");
+
+        if (isOn) {
             element.textContent = stateOn;
             element.className = 'metric-value ' + classOn;
-        } else if (val === 0) {
+        } else if (isOff) {
             element.textContent = stateOff;
             element.className = 'metric-value ' + classOff;
         } else {
@@ -1676,8 +1795,21 @@ function updateUIWithData(data) {
     if (data.monthcost !== undefined) {
         updateElementText('monthcost', data.monthcost.toFixed(2));
     }
+
     if (data.totalcost !== undefined) {
         updateElementText('totalcost', data.totalcost.toFixed(2));
+    }
+
+    const arrowElement = document.getElementById('charging-flow');
+    if (arrowElement && data.chargestate !== undefined) {
+        // Cek jika statusnya true (charging)
+        const isCharging = (data.chargestate === true || data.chargestate === 1 || data.chargestate === "1");
+        
+        if (isCharging) {
+            arrowElement.classList.add('show-flow');
+        } else {
+            arrowElement.classList.remove('show-flow');
+        }
     }
 }
 
