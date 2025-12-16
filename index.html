@@ -1,28 +1,430 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MPPT Techfine Monitoring</title>
-    
-    <!-- PWA Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#007BFF">
-    <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    <meta name="description" content="Main Dashboard MPPT Monitoring real-time for Techfine, Samoto and Amsan">
+    <meta name="author" content="Teguh Sakura (teguh.sakura@yahoo.com)">
     
-    <script>
-        // Redirect ke dashboard.html
-        window.location.href = './dashboard.html';
-        
-        // Fallback jika JavaScript disabled
-        setTimeout(function() {
-            document.body.innerHTML = '<p>Redirecting to <a href="./dashboard.html">MPPT Dashboard</a>...</p>';
-        }, 1000);
-    </script>
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="MPPT Dashboard">
+    <meta name="apple-mobile-web-app-title" content="MPPT Dashboard">
+    <meta name="msapplication-TileColor" content="#007BFF">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <title>MPPT Dashboard</title>
+    
+    <!-- Tambahkan library MQTT.js -->
+    <script src="./mqtt.min.js"></script>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="./icons/icon-167x167.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="./icons/icon-192x192.png">
+
+    <style>
+        :root {
+            --primary: #007BFF;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --accent: #28a745;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            /* Gabungkan padding 20px dengan safe-area */
+            padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)) 20px; 
+            color: var(--text-main); 
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .header h1 { font-size: 1.5rem; margin: 0; color: var(--primary); }
+
+        .client-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .client-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+            position: relative;
+        }
+        .client-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        .client-card h2 { margin: 0 0 15px 0; font-size: 1.1rem; border-bottom: 2px solid var(--bg); padding-bottom: 10px; display: flex; justify-content: space-between; color: var(--primary); }
+
+        .metric-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .m-item { background: #f8f9fa; padding: 10px; border-radius: 8px; border-left: 3px solid #ddd; }
+        .m-item.highlight { border-left-color: var(--accent); background: #f0fff4; }
+        .m-label { font-size: 0.7rem; color: #777; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+        .m-value { font-size: 1rem; font-weight: bold; color: #222; }
+
+        .status-box { background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem; }
+        .status-val { font-weight: bold; color: var(--primary); }
+
+        .card-footer { 
+            display: flex; justify-content: space-between; font-size: 0.8rem; color: #888; 
+            padding-top: 10px; border-top: 1px solid #eee; 
+        }
+
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 15% auto; padding: 25px; width: 85%; max-width: 400px; border-radius: 20px; }
+        .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 10px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        .btn-save { background: var(--primary); color: white; width: 100%; }
+        .btn-settings { background: white; color: var(--primary); border: 1px solid var(--primary); }
+        .btn-del { background: #ff4d4d; color: white; padding: 5px 12px; }
+
+        /* Gaya untuk box status agar kiri-kanan */
+        .status-container {
+            display: flex;
+            justify-content: space-between; /* Menendang konten ke kiri dan kanan */
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.82rem;
+        }
+
+        .status-left { text-align: left; }
+        .status-right { text-align: right; }
+
+        /* Agar icon IP dan WiFi tetap rapi */
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .main-footer {
+            margin-top: 40px;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            background: #fff;
+            font-size: 0.9rem;
+        }
+
+        .main-footer .brand {
+            color: blue;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+        }
+
+        .main-footer .email {
+            color: blue;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+
+        .main-footer .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .main-footer a {
+            text-decoration: none;
+        }
+
+        .main-footer .link-tokped {
+            color: green;
+        }
+
+        .main-footer .link-shopee {
+            color: #ee4d2d;
+        }
+
+        /* PWA Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #007BFF;
+            color: white;
+            padding: 15px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 9999;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            animation: slideUp 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .install-prompt-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .install-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .install-text {
+            flex: 1;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .install-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .install-btn {
+            background: white;
+            color: #007BFF;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .dismiss-btn {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* PWA Standalone Mode */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            
+            .install-prompt {
+                display: none !important;
+            }
+           .main-footer {
+                padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            }
+        }
+
+    </style>
 </head>
 <body>
-    <p>Loading MPPT Monitoring Dashboard...</p>
+    <div id="installPrompt" style="display:none; position:fixed; bottom:20px; left:20px; right:20px; background:white; padding:15px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.2); z-index:9999; flex-direction:column; align-items:center; text-align:center;">
+        <p style="margin:0 0 10px 0; font-weight:bold;">Pasang Aplikasi Monitoring?</p>
+        <div style="display:flex; gap:10px; width:100%;">
+            <button onclick="installApp()" style="flex:1; background:#007BFF; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold;">Pasang Sekarang</button>
+            <button onclick="dismissInstallPrompt()" style="flex:1; background:#eee; color:#333; border:none; padding:10px; border-radius:8px;">Nanti Saja</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>🏠 MPPT Main Dashboard</h1>
+        <button class="btn btn-settings" onclick="openModal()">⚙️ Konfigurasi</button>
+    </div>
+
+    <div id="clientGrid" class="client-grid"></div>
+
+    <div id="setupModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-top:0">Daftar Klien</h2>
+            <div id="inputContainer"></div>
+            <button class="btn" style="background:#e7f1ff; color:#007BFF; width:100%; margin-bottom:10px;" onclick="addInput()">+ Tambah Klien</button>
+            <button class="btn btn-save" onclick="saveClients()">Simpan</button>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+      <div class="footer-content">
+        <p class="brand">Teguh Sakura&trade;</p>
+        <p class="email">&#9993; teguh.sakura@yahoo.com</p>
+        <div class="footer-links">
+            <a href="http://tokopedia.com/teguhhydrofarm" class="link-tokped">
+                &#127978; <b>Tokopedia</b>
+            </a>
+            <a href="https://shopee.co.id/teguhfarm" class="link-shopee">
+                &#127978; <b>Shopee</b>
+            </a>
+        </div>
+      </div>
+    </footer>
+
+<script>
+// ===== PWA INSTALL FUNCTIONALITY =====
+let deferredPrompt;
+const installPrompt = document.getElementById('installPrompt');
+
+// Event listener for beforeinstallprompt
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    setTimeout(() => {
+        if (!isAppInstalled()) {
+            showInstallPrompt();
+        }
+    }, 5000);
+});
+
+function isAppInstalled() {
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true;
+}
+
+function showInstallPrompt() {
+    installPrompt.style.display = 'flex';
+}
+
+function dismissInstallPrompt() {
+    installPrompt.style.display = 'none';
+    localStorage.setItem('installPromptDismissed', 'true');
+}
+
+function installApp() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            deferredPrompt = null;
+            installPrompt.style.display = 'none';
+        });
+    }
+}
+
+window.addEventListener('appinstalled', (evt) => {
+    console.log('MPPT Monitoring was installed successfully');
+    installPrompt.style.display = 'none';
+});
+
+// ===== KONFIGURASI GLOBAL =====
+let clients = JSON.parse(localStorage.getItem('mppt_clients')) || [];
+        
+// --- TAMBAHKAN KODE BARU DI SINI (LOGIKA BYPASS) ---
+const urlParams = new URLSearchParams(window.location.search);
+const forceHub = urlParams.get('hub'); 
+
+// Jika cuma ada 1 klien, langsung lempar ke dashboard
+if (clients.length === 1 && forceHub !== 'true') {
+     window.location.href = `dashboard.html?id=${clients[0]}`;
+}
+// --------------------------------------------------
+
+// Broker sesuai dengan dashboard.html Anda
+const broker = "ws://broker.emqx.io:8083/mqtt"; 
+
+function openModal() {
+    const container = document.getElementById('inputContainer');
+    container.innerHTML = '';
+    if(clients.length === 0) addInput();
+        clients.forEach(c => addInput(c));
+        document.getElementById('setupModal').style.display = 'block';
+}
+
+function addInput(value = '') {
+    const div = document.createElement('div');
+    div.className = 'input-row';
+    div.innerHTML = `<input type="text" placeholder="techfine.001" value="${value}"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+    document.getElementById('inputContainer').appendChild(div);
+}
+
+function saveClients() {
+    const inputs = document.querySelectorAll('#inputContainer input');
+    clients = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
+    localStorage.setItem('mppt_clients', JSON.stringify(clients));
+    location.reload();
+}
+
+if (clients.length === 0) openModal();
+
+const clientGrid = document.getElementById('clientGrid');
+
+clients.forEach(id => {
+    const card = document.createElement('div');
+    card.className = 'client-card';
+    card.onclick = () => window.location.href = `dashboard.html?id=${id}`;
+       card.innerHTML = `
+            <h2><span>${id}</span> <span>→</span></h2>
+            <div class="metric-group">
+                <div class="m-item"><span class="m-label">PV Voltage</span><span class="m-value" id="pv_v_${id}">-</span></div>
+                <div class="m-item"><span class="m-label">Bat Current</span><span class="m-value" id="bat_c_${id}">-</span></div>
+                <div class="m-item"><span class="m-label">Bat Voltage</span><span class="m-value" id="bat_v_${id}">-</span></div>
+                <div class="m-item"><span class="m-label">Bat Power</span><span class="m-value" id="bat_p_${id}">-</span></div>
+                <div class="m-item highlight"><span class="m-label">Power Max</span><span class="m-value" id="p_max_${id}">-</span></div>
+                <div class="m-item highlight"><span class="m-label">Energy Today</span><span class="m-value" id="e_today_${id}">-</span></div>
+            </div>
+            <div class="status-container">
+                <div class="status-left">Status Charge: <span class="status-val" id="st_chg_${id}">-</span></div>
+                <div class="status-right">Status Isi Baterai: <span class="status-val" id="st_bat_${id}">-</span></div>
+            </div>
+
+            <div class="card-footer">
+                <span class="footer-item" id="wifi_${id}">📶 - dBm</span>
+                <span class="footer-item">🌐 <span id="ip_${id}">-</span></span>
+            </div>
+       `;
+clientGrid.appendChild(card);
+
+// Koneksi MQTT
+const clientMqtt = mqtt.connect(broker);
+clientMqtt.on('connect', () => {
+   clientMqtt.subscribe(`mppt_techfine_samoto_amsan/${id}/alldata`);
+});
+
+clientMqtt.on('message', (topic, message) => {
+   try {
+       const d = JSON.parse(message.toString());
+       document.getElementById(`pv_v_${id}`).innerText = d.voltagepv.toFixed(1) + " V";
+       document.getElementById(`bat_v_${id}`).innerText = d.voltagebat.toFixed(1) + " V";
+       document.getElementById(`bat_c_${id}`).innerText = d.currentbat.toFixed(1) + " A";
+       document.getElementById(`bat_p_${id}`).innerText = d.powerbat.toFixed(0) + " W";
+       document.getElementById(`p_max_${id}`).innerText = (d.powerbatmax || 0).toFixed(0) + " W";
+       document.getElementById(`e_today_${id}`).innerText = (d.energytoday || 0).toFixed(2) + " kWh";
+
+       document.getElementById(`st_chg_${id}`).innerText = d.chargestate ? "Charging" : "Off";
+       document.getElementById(`st_bat_${id}`).innerText = d.batfullstate ? "Terisi Penuh" : "Belum Penuh";
+
+       document.getElementById(`wifi_${id}`).innerText = "📶 " + d.sinyalwifi + " dBm";
+       document.getElementById(`ip_${id}`).innerText = "IP: " + d.alamatip;
+   } catch (e) { console.log(e); }
+ });
+});
+
+window.onclick = (e) => { if(e.target.className == 'modal') document.getElementById('setupModal').style.display='none'; }
+</script>
 </body>
 </html>
