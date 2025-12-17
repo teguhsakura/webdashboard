@@ -1,10 +1,11 @@
-const CACHE_NAME = "jkbms-cache-v1";
+const CACHE_NAME = "webdashboard-cache-v1";
 const urlsToCache = [
   "/",
   "/index.html",
   "/manifest.json",
   "/icons/icon-192x192.png",
   "/icons/icon-512x512.png",
+  "/chart.js",
   "/mqtt.min.js"
 ];
 
