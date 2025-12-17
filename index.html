@@ -190,11 +190,18 @@
     </style>
 </head>
 <body>
-    <div id="installPrompt" style="display:none; position:fixed; bottom:20px; left:20px; right:20px; background:white; padding:15px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.2); z-index:9999; flex-direction:column; align-items:center; text-align:center;">
-        <p style="margin:0 0 10px 0; font-weight:bold;">Pasang Aplikasi Monitoring?</p>
-        <div style="display:flex; gap:10px; width:100%;">
-            <button onclick="installApp()" style="flex:1; background:#007BFF; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold;">Pasang Sekarang</button>
-            <button onclick="dismissInstallPrompt()" style="flex:1; background:#eee; color:#333; border:none; padding:10px; border-radius:8px;">Nanti Saja</button>
+    <!-- PWA Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        <div class="install-prompt-content">
+            <div class="install-icon">📱</div>
+            <div class="install-text">
+                <strong>Install MPPT Dashboard</strong><br>
+                Untuk pengalaman yang lebih baik, install aplikasi ini di perangkat Anda.
+            </div>
+        </div>
+        <div class="install-actions">
+            <button class="dismiss-btn" onclick="dismissInstallPrompt()">Nanti</button>
+            <button class="install-btn" onclick="installApp()">Install</button>
         </div>
     </div>
 
@@ -257,6 +264,9 @@ function installApp() {
 let clients = JSON.parse(localStorage.getItem('mppt_clients')) || [];
 const broker = "ws://broker.emqx.io:8083/mqtt"; 
 
+// Tambahkan ini untuk melihat jumlah klien yang terbaca di layar
+alert("Jumlah klien terdeteksi: " + clients.length + "\nDaftar: " + clients.join(", "));
+
 // LOGIKA BYPASS TELAH DIHAPUS 
 // Sekarang aplikasi akan selalu menampilkan index.html meskipun hanya ada 1 klien.
 
@@ -277,9 +287,17 @@ function addInput(value = '') {
 
 function saveClients() {
     const inputs = document.querySelectorAll('#inputContainer input');
-    clients = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
+    clients = Array.from(inputs)
+        .map(i => i.value.trim())
+        .filter(v => v !== '');
+    
+    // Simpan data
     localStorage.setItem('mppt_clients', JSON.stringify(clients));
-    location.reload();
+    
+    // Beri jeda sedikit sebelum reload untuk memastikan data tersimpan
+    setTimeout(() => {
+        window.location.href = window.location.pathname + '?refresh=' + Date.now();
+    }, 100);
 }
 
 if (clients.length === 0) openModal();
