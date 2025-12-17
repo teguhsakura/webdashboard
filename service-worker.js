@@ -3,6 +3,7 @@ const CACHE_NAME = 'mppt-dashboard-v1.2';
 const urlsToCache = [
   '/webdashboard/',
   '/webdashboard/index.html',
+  '/webdashboard/dashboard.html',
   '/webdashboard/mqtt.min.js',
   '/webdashboard/chart.js',
   '/webdashboard/icons/icon-192x192.png',
