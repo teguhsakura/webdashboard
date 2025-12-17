@@ -1,10 +1,11 @@
 // Service Worker untuk MPPT Monitoring PWA
-const CACHE_NAME = 'mppt-monitoring-v1.1';
+const CACHE_NAME = 'mppt-dashboard-v1.1';
 const urlsToCache = [
   './',
   './dashboard.html',
   './index.html',
-  'https://unpkg.com/mqtt/dist/mqtt.min.js',
+  './mqtt.min.js',
+  './chart.js',
   './icons/icon-192x192.png',
   './icons/icon-512x512.png'
 ];
@@ -117,7 +118,7 @@ self.addEventListener('push', event => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('MPPT Monitoring', options)
+    self.registration.showNotification('MPPT Dashboard', options)
   );
 });
 
