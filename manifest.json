@@ -1,8 +1,8 @@
 {
-  "name": "MPPT Monitoring",
-  "short_name": "MPPT Monitor",
+  "name": "MPPT Dashboard",
+  "short_name": "MPPT Dashboard",
   "description": "Dashboard monitoring sistem MPPT Techfine, Samoto dan Amsan secara real-time",
-  "start_url": "/webdashboard/dashboard.html",
+  "start_url": "/webdashboard/index.html",
   "display": "standalone",
   "background_color": "#f0f4f8",
   "theme_color": "#007BFF",
