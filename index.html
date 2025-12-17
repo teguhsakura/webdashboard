@@ -45,13 +45,15 @@
             color: var(--text-main); 
         }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;}
         .header h1 { font-size: 1.5rem; margin: 0; color: var(--primary); }
 
         .client-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .client-card {
@@ -159,6 +161,26 @@
                 padding-bottom: calc(20px + env(safe-area-inset-bottom));
             }
         }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header h1 {
+                width: 100%;
+             }
+
+            .btn-settings {
+                width: 100%;
+                text-align: center;
+            }
+
+            body {
+                padding: calc(20px + env(safe-area-inset-top)) 15px;
+            }
+        }
+      
     </style>
 </head>
 <body>
