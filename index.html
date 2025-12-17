@@ -75,11 +75,45 @@
         .metric-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         .m-item { background: #f8f9fa; padding: 10px; border-radius: 8px; border-left: 3px solid #ddd; }
         .m-item.highlight { border-left-color: var(--accent); background: #f0fff4; }
+        .m-item.top { border-left-color: blue; background: #f0fff4; }
         .m-label { font-size: 0.7rem; color: #777; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
         .m-value { font-size: 1rem; font-weight: bold; color: #222; }
 
-        .status-box { background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem; }
-        .status-val { font-weight: bold; color: var(--primary); }
+        .status-container {
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr; /* Kolom kiri, garis tengah, kolom kanan */
+            background: #e9ecef;
+            padding: 10px 5px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .status-box-item {
+            text-align: center; /* Pusatkan teks agar rapi saat menumpuk */
+            display: flex;
+            flex-direction: column; /* Membuat nilai ditaruh di bawah label */
+            gap: 2px;
+        }
+
+        .status-label-small {
+            font-size: 0.65rem;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .status-divider {
+            background-color: #ccc;
+            height: 30px; /* Tinggi garis tengah */
+            width: 1px;
+        }
+
+        .status-val {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
 
         .card-footer { 
             display: flex; justify-content: space-between; font-size: 0.8rem; color: #888; 
@@ -395,16 +429,25 @@ clients.forEach(id => {
         card.innerHTML = `
             <h2><span>${id}</span> <span>→</span></h2>
             <div class="metric-group">
-                <div class="m-item"><span class="m-label">PV Voltage</span><span class="m-value" id="pv_v_${id}">-</span></div>
-                <div class="m-item"><span class="m-label">Bat Current</span><span class="m-value" id="bat_c_${id}">-</span></div>
-                <div class="m-item"><span class="m-label">Bat Voltage</span><span class="m-value" id="bat_v_${id}">-</span></div>
+                <div class="m-item top"><span class="m-label">Bat Voltage</span><span class="m-value" id="bat_v_${id}">-</span></div>
+                <div class="m-item top"><span class="m-label">PV Voltage</span><span class="m-value" id="pv_v_${id}">-</span></div>
                 <div class="m-item"><span class="m-label">Bat Power</span><span class="m-value" id="bat_p_${id}">-</span></div>
+                <div class="m-item"><span class="m-label">Bat Current</span><span class="m-value" id="bat_c_${id}">-</span></div>
                 <div class="m-item highlight"><span class="m-label">Power Max</span><span class="m-value" id="p_max_${id}">-</span></div>
                 <div class="m-item highlight"><span class="m-label">Energy Today</span><span class="m-value" id="e_today_${id}">-</span></div>
             </div>
             <div class="status-container">
-                <div class="status-left">Status Charge: <span class="status-val" id="st_chg_${id}">-</span></div>
-                <div class="status-right">Status Isi Baterai: <span class="status-val" id="st_bat_${id}">-</span></div>
+                <div class="status-box-item">
+                    <span class="status-label-small">Status Charge</span>
+                    <span class="status-val" id="st_chg_${id}">-</span>
+                </div>
+
+                <div class="status-divider"></div>
+
+                <div class="status-box-item">
+                    <span class="status-label-small">Status Isi Baterai</span>
+                    <span class="status-val" id="st_bat_${id}">-</span>
+                </div>
             </div>
             <div class="card-footer">
                 <span class="footer-item" id="wifi_${id}">📶 - dBm</span>
