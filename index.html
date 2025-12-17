@@ -129,6 +129,7 @@
         .main-footer .link-tokped { color: green; }
         .main-footer .link-shopee { color: #ee4d2d; }
 
+        /* PWA Install Prompt */
         .install-prompt {
             position: fixed;
             bottom: 0;
@@ -145,6 +146,70 @@
             animation: slideUp 0.3s ease;
             width: 100%;
             box-sizing: border-box;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .install-prompt-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .install-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .install-text {
+            flex: 1;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .install-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .install-btn {
+            background: white;
+            color: #007BFF;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .dismiss-btn {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* PWA Standalone Mode */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            
+            .install-prompt {
+                display: none !important;
+            }
         }
 
         @keyframes slideUp {
@@ -303,52 +368,80 @@ function saveClients() {
 if (clients.length === 0) openModal();
 
 const clientGrid = document.getElementById('clientGrid');
+clientGrid.innerHTML = ''; // Bersihkan grid sebelum render
 
 clients.forEach(id => {
-    const card = document.createElement('div');
-    card.className = 'client-card';
-    card.onclick = () => window.location.href = `dashboard.html?id=${id}`;
-    card.innerHTML = `
-        <h2><span>${id}</span> <span>→</span></h2>
-        <div class="metric-group">
-            <div class="m-item"><span class="m-label">PV Voltage</span><span class="m-value" id="pv_v_${id}">-</span></div>
-            <div class="m-item"><span class="m-label">Bat Current</span><span class="m-value" id="bat_c_${id}">-</span></div>
-            <div class="m-item"><span class="m-label">Bat Voltage</span><span class="m-value" id="bat_v_${id}">-</span></div>
-            <div class="m-item"><span class="m-label">Bat Power</span><span class="m-value" id="bat_p_${id}">-</span></div>
-            <div class="m-item highlight"><span class="m-label">Power Max</span><span class="m-value" id="p_max_${id}">-</span></div>
-            <div class="m-item highlight"><span class="m-label">Energy Today</span><span class="m-value" id="e_today_${id}">-</span></div>
-        </div>
-        <div class="status-container">
-            <div class="status-left">Status Charge: <span class="status-val" id="st_chg_${id}">-</span></div>
-            <div class="status-right">Status Isi Baterai: <span class="status-val" id="st_bat_${id}">-</span></div>
-        </div>
-        <div class="card-footer">
-            <span class="footer-item" id="wifi_${id}">📶 - dBm</span>
-            <span class="footer-item">🌐 <span id="ip_${id}">-</span></span>
-        </div>
-    `;
-    clientGrid.appendChild(card);
+    try {
+        const card = document.createElement('div');
+        card.className = 'client-card';
+        // Gunakan ID yang unik untuk setiap fungsi klik
+        card.setAttribute('onclick', `window.location.href='dashboard.html?id=${id}'`);
+        
+        card.innerHTML = `
+            <h2><span>${id}</span> <span>→</span></h2>
+            <div class="metric-group">
+                <div class="m-item"><span class="m-label">PV Voltage</span><span class="m-value" id="pv_v_${id}">-</span></div>
+                <div class="m-item"><span class="m-label">Bat Current</span><span class="m-value" id="bat_c_${id}">-</span></div>
+                <div class="m-item"><span class="m-label">Bat Voltage</span><span class="m-value" id="bat_v_${id}">-</span></div>
+                <div class="m-item"><span class="m-label">Bat Power</span><span class="m-value" id="bat_p_${id}">-</span></div>
+                <div class="m-item highlight"><span class="m-label">Power Max</span><span class="m-value" id="p_max_${id}">-</span></div>
+                <div class="m-item highlight"><span class="m-label">Energy Today</span><span class="m-value" id="e_today_${id}">-</span></div>
+            </div>
+            <div class="status-container">
+                <div class="status-left">Status Charge: <span class="status-val" id="st_chg_${id}">-</span></div>
+                <div class="status-right">Status Isi Baterai: <span class="status-val" id="st_bat_${id}">-</span></div>
+            </div>
+            <div class="card-footer">
+                <span class="footer-item" id="wifi_${id}">📶 - dBm</span>
+                <span class="footer-item">🌐 <span id="ip_${id}">-</span></span>
+            </div>
+        `;
+        clientGrid.appendChild(card);
 
-    const clientMqtt = mqtt.connect(broker);
-    clientMqtt.on('connect', () => {
-        clientMqtt.subscribe(`mppt_techfine_samoto_amsan/${id}/alldata`);
-    });
+        // Inisialisasi MQTT untuk setiap klien
+        const clientMqtt = mqtt.connect(broker);
+        clientMqtt.on('connect', () => {
+            clientMqtt.subscribe(`mppt_techfine_samoto_amsan/${id}/alldata`);
+        });
 
-    clientMqtt.on('message', (topic, message) => {
-        try {
-            const d = JSON.parse(message.toString());
-            document.getElementById(`pv_v_${id}`).innerText = d.voltagepv.toFixed(1) + " V";
-            document.getElementById(`bat_v_${id}`).innerText = d.voltagebat.toFixed(1) + " V";
-            document.getElementById(`bat_c_${id}`).innerText = d.currentbat.toFixed(1) + " A";
-            document.getElementById(`bat_p_${id}`).innerText = d.powerbat.toFixed(0) + " W";
-            document.getElementById(`p_max_${id}`).innerText = (d.powerbatmax || 0).toFixed(0) + " W";
-            document.getElementById(`e_today_${id}`).innerText = (d.energytoday || 0).toFixed(2) + " kWh";
-            document.getElementById(`st_chg_${id}`).innerText = d.chargestate ? "Charging" : "Off";
-            document.getElementById(`st_bat_${id}`).innerText = d.batfullstate ? "Terisi Penuh" : "Belum Penuh";
-            document.getElementById(`wifi_${id}`).innerText = "📶 " + d.sinyalwifi + " dBm";
-            document.getElementById(`ip_${id}`).innerText = "IP: " + d.alamatip;
-        } catch (e) { console.log(e); }
-    });
+        clientMqtt.on('message', (topic, message) => {
+            try {
+                const d = JSON.parse(message.toString());
+                // Gunakan ID unik untuk update data agar tidak tertukar
+                const elPvV = document.getElementById(`pv_v_${id}`);
+                if(elPvV) elPvV.innerText = d.voltagepv.toFixed(1) + " V";
+                
+                const elBatV = document.getElementById(`bat_v_${id}`);
+                if(elBatV) elBatV.innerText = d.voltagebat.toFixed(1) + " V";
+                
+                const elBatC = document.getElementById(`bat_c_${id}`);
+                if(elBatC) elBatC.innerText = d.currentbat.toFixed(1) + " A";
+                
+                const elBatP = document.getElementById(`bat_p_${id}`);
+                if(elBatP) elBatP.innerText = d.powerbat.toFixed(0) + " W";
+                
+                const elPMax = document.getElementById(`p_max_${id}`);
+                if(elPMax) elPMax.innerText = (d.powerbatmax || 0).toFixed(0) + " W";
+                
+                const elEToday = document.getElementById(`e_today_${id}`);
+                if(elEToday) elEToday.innerText = (d.energytoday || 0).toFixed(2) + " kWh";
+                
+                const elStChg = document.getElementById(`st_chg_${id}`);
+                if(elStChg) elStChg.innerText = d.chargestate ? "Charging" : "Off";
+                
+                const elStBat = document.getElementById(`st_bat_${id}`);
+                if(elStBat) elStBat.innerText = d.batfullstate ? "Terisi Penuh" : "Belum Penuh";
+                
+                const elWifi = document.getElementById(`wifi_${id}`);
+                if(elWifi) elWifi.innerText = "📶 " + d.sinyalwifi + " dBm";
+                
+                const elIp = document.getElementById(`ip_${id}`);
+                if(elIp) elIp.innerText = "IP: " + d.alamatip;
+            } catch (e) { console.error("Error parsing MQTT:", e); }
+        });
+    } catch (err) {
+        console.error("Error creating card for", id, err);
+    }
 });
 
 window.onclick = (e) => { if(e.target.className == 'modal') document.getElementById('setupModal').style.display='none'; }
