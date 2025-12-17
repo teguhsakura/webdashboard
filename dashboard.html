@@ -10,12 +10,6 @@
     <meta name="description" content="Dashboard MPPT Monitoring real-time for Techfine, Samoto and Amsan">
     <meta name="author" content="Teguh Sakura (teguh.sakura@yahoo.com)">
     
-    <!-- PWA Meta Tags -->
-    <meta name="application-name" content="MPPT Monitoring">
-    <meta name="apple-mobile-web-app-title" content="MPPT Monitoring">
-    <meta name="msapplication-TileColor" content="#007BFF">
-    <meta name="msapplication-tap-highlight" content="no">
-    
     <title>MPPT Monitoring</title>
     
     <!-- Tambahkan library MQTT.js -->
@@ -773,89 +767,6 @@
         .btn-danger {
             background-color: #dc3545 !important;
         }
-
-        /* PWA Install Prompt */
-        .install-prompt {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #007BFF;
-            color: white;
-            padding: 15px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 9999;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            animation: slideUp 0.3s ease;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .install-prompt-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-        }
-
-        .install-icon {
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-
-        .install-text {
-            flex: 1;
-            font-size: 14px;
-            word-wrap: break-word;
-        }
-
-        .install-actions {
-            display: flex;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .install-btn {
-            background: white;
-            color: #007BFF;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .dismiss-btn {
-            background: transparent;
-            color: white;
-            border: 1px solid white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        /* PWA Standalone Mode */
-        @media (display-mode: standalone) {
-            body {
-                padding-top: env(safe-area-inset-top);
-                padding-bottom: env(safe-area-inset-bottom);
-                padding-left: env(safe-area-inset-left);
-                padding-right: env(safe-area-inset-right);
-            }
-            
-            .install-prompt {
-                display: none !important;
-            }
-        }
         
         /* GLOBAL OVERFLOW FIX */
         .main-container-border * {
@@ -922,20 +833,6 @@
     </style>
 </head>
 <body>
-    <!-- PWA Install Prompt -->
-    <div class="install-prompt" id="installPrompt">
-        <div class="install-prompt-content">
-            <div class="install-icon">📱</div>
-            <div class="install-text">
-                <strong>Install MPPT Monitoring</strong><br>
-                Untuk pengalaman yang lebih baik, install aplikasi ini di perangkat Anda.
-            </div>
-        </div>
-        <div class="install-actions">
-            <button class="dismiss-btn" onclick="dismissInstallPrompt()">Nanti</button>
-            <button class="install-btn" onclick="installApp()">Install</button>
-        </div>
-    </div>
 
     <!-- Modal/Popup untuk input nama klien -->
     <div class="modal active" id="clientModal">
@@ -947,20 +844,6 @@
             <button onclick="backToHub()" style="margin-top: 15px; background: none; border: 1px solid #007BFF; color: #007BFF; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold;">
                ⚙️ Tambah / Kelola Banyak Device
             </button>
-        </div>
-    </div>
-
-    <!-- Modal Konfirmasi Ganti Klien -->
-    <div class="confirmation-modal" id="confirmationModal">
-        <div class="confirmation-content">
-            <div class="confirmation-icon">⚠️</div>
-            <h3>Ganti <b>Nama Klien</b>?</h3>
-            <p>Apakah Anda yakin ingin mengganti <b>Nama Klien</b>?</p>
-            <p><strong>Nama Klien saat ini: <span id="currentClientName">-</span></strong></p>
-            <div class="button-group-modal">
-                <button class="btn-secondary" onclick="hideConfirmation()">Batal</button>
-                <button class="btn-danger" onclick="confirmChangeClient()">Ya, Ganti Nama Klien</button>
-            </div>
         </div>
     </div>
 
@@ -1314,51 +1197,6 @@
     </div>
 
 <script>
-// ===== PWA INSTALL FUNCTIONALITY =====
-let deferredPrompt;
-const installPrompt = document.getElementById('installPrompt');
-
-// Event listener for beforeinstallprompt
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    
-    setTimeout(() => {
-        if (!isAppInstalled()) {
-            showInstallPrompt();
-        }
-    }, 5000);
-});
-
-function isAppInstalled() {
-    return window.matchMedia('(display-mode: standalone)').matches || 
-           window.navigator.standalone === true;
-}
-
-function showInstallPrompt() {
-    installPrompt.style.display = 'flex';
-}
-
-function dismissInstallPrompt() {
-    installPrompt.style.display = 'none';
-    localStorage.setItem('installPromptDismissed', 'true');
-}
-
-function installApp() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-            deferredPrompt = null;
-            installPrompt.style.display = 'none';
-        });
-    }
-}
-
-window.addEventListener('appinstalled', (evt) => {
-    console.log('MPPT Monitoring was installed successfully');
-    installPrompt.style.display = 'none';
-});
-
 // ===== KONFIGURASI GLOBAL =====
 const MQTT_CONFIG = {
     url: 'wss://broker.emqx.io:8084/mqtt',
